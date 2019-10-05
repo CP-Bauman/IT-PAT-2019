@@ -24,7 +24,7 @@ object frmBridgeDatabase: TfrmBridgeDatabase
     Top = 8
     Width = 1219
     Height = 684
-    ActivePage = tsLogin
+    ActivePage = tsOngoing
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object tsLogin: TTabSheet
@@ -14446,11 +14446,55 @@ object frmBridgeDatabase: TfrmBridgeDatabase
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'ID'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Wins'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Loses'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'WinRate'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'CheatPoints'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Rating'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Rank'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'TournamentAmount'
+            Visible = True
+          end>
       end
     end
     object tsSearch: TTabSheet
       Caption = 'tsSearch'
       ImageIndex = 4
+      DesignSize = (
+        1211
+        656)
       object lblSearchPlayer: TLabel
         Left = 3
         Top = 47
@@ -14493,6 +14537,19 @@ object frmBridgeDatabase: TfrmBridgeDatabase
         Height = 25
         Caption = 'Search'
         TabOrder = 2
+      end
+      object DBGrid1: TDBGrid
+        Left = 0
+        Top = 74
+        Width = 1208
+        Height = 579
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        TabOrder = 3
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'Tahoma'
+        TitleFont.Style = []
       end
     end
     object tsCreateTournament: TTabSheet
@@ -14981,6 +15038,9 @@ object frmBridgeDatabase: TfrmBridgeDatabase
     object tsOngoing: TTabSheet
       Caption = 'tsOngoing'
       ImageIndex = 6
+      DesignSize = (
+        1211
+        656)
       object lblOngoingTournaments: TLabel
         Left = 3
         Top = 3
@@ -14993,6 +15053,19 @@ object frmBridgeDatabase: TfrmBridgeDatabase
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+      end
+      object grdOngoing: TDBGrid
+        Left = 3
+        Top = 28
+        Width = 1206
+        Height = 625
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'Tahoma'
+        TitleFont.Style = []
       end
     end
     object tsEnterTournament: TTabSheet

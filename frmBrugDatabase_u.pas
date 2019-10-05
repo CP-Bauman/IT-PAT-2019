@@ -1,5 +1,6 @@
 unit frmBrugDatabase_u;
 
+// Christiaan Bauman
 interface
 
 uses
@@ -109,6 +110,8 @@ type
     lblPrize: TLabel;
     sedPrize: TSpinEdit;
     Image1: TImage;
+    DBGrid1: TDBGrid;
+    grdOngoing: TDBGrid;
     procedure FormCreate(Sender: TObject);
     procedure btnRegisterClick(Sender: TObject);
     procedure btnRegBackClick(Sender: TObject);
@@ -231,6 +234,9 @@ begin
         lblProfCell.Caption := dmBrugDatabase_u.DataModule1.tblUsers
           ['Phone Number'];
 
+         grdRankings.Columns[0].FieldName := 'Name';
+
+
 
 
         if dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = True then
@@ -280,9 +286,9 @@ begin
     begin
       dmBrugDatabase_u.DataModule1.tblUsers.next;
     end;
-   ShowMessage('User does not exist');
-  end;
 
+  end;
+  ShowMessage('User does not exist');
 end;
 
 procedure TfrmBridgeDatabase.btnRegBackClick(Sender: TObject);
