@@ -280,7 +280,7 @@ begin
     begin
       dmBrugDatabase_u.DataModule1.tblUsers.next;
     end;
-   // ShowMessage('User does not exist');
+   ShowMessage('User does not exist');
   end;
 
 end;
