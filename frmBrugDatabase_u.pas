@@ -113,6 +113,7 @@ type
     grdOngoing: TDBGrid;
     Image2: TImage;
     redRanking: TRichEdit;
+    Image3: TImage;
     procedure FormCreate(Sender: TObject);
     procedure btnRegisterClick(Sender: TObject);
     procedure btnRegBackClick(Sender: TObject);
@@ -124,6 +125,7 @@ type
     procedure btnLoginClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure btnCreateTourClick(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -991,6 +993,23 @@ begin
   pcTabs.ActivePage := tsEdit;
 end;
 
+procedure TfrmBridgeDatabase.Button4Click(Sender: TObject);
+begin
+  tsLogin.TabVisible := True;
+  tsRegister.TabVisible := False;
+  tsProfile.TabVisible := False;
+  tsRanking.TabVisible := False;
+  tsSearch.TabVisible := False;
+  tsCreateTournament.TabVisible := False;
+  tsOngoing.TabVisible := False;
+  tsEnterTournament.TabVisible := False;
+  tsMyTournament.TabVisible := False;
+  tsNotices.TabVisible := False;
+  tsEdit.TabVisible := False;
+  tsLogin.Visible := True;
+  pcTabs.ActivePage := tsLogin;
+end;
+
 procedure TfrmBridgeDatabase.FormCreate(Sender: TObject);
 
 begin
@@ -1059,6 +1078,9 @@ begin
 
   Image2.Width := tsRegister.Width;
   Image2.Height := tsRegister.Height;
+
+    Image3.Width := tsprofile.Width;
+  Image3.Height := tsprofile.Height;
 
 end;
 
