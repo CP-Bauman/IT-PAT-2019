@@ -96,7 +96,6 @@ type
     sedRatMin: TSpinEdit;
     sedRatMax: TSpinEdit;
     lblRank: TLabel;
-    grdRankings: TDBGrid;
     lblSearchPlayer: TLabel;
     rgSearch: TRadioGroup;
     edtSearch: TEdit;
@@ -112,6 +111,8 @@ type
     Image1: TImage;
     DBGrid1: TDBGrid;
     grdOngoing: TDBGrid;
+    Image2: TImage;
+    redRanking: TRichEdit;
     procedure FormCreate(Sender: TObject);
     procedure btnRegisterClick(Sender: TObject);
     procedure btnRegBackClick(Sender: TObject);
@@ -137,22 +138,30 @@ implementation
 {$R *.dfm}
 
 procedure TfrmBridgeDatabase.btnCreateTourClick(Sender: TObject);
+var
+  iMonth: Integer;
+
 begin
+  ShowMessage(DateToStr(date));
   if Length(edtTournamentName.text) < 5 then
   begin
     ShowMessage('Tournament name too short');
+    exit;
   end;
 
   if sedNrofGames.Value < 1 then
   begin
     ShowMessage('Too little number of games');
+    exit;
   end;
 
-  if Length(edtTournamentName.text) < 5 then
+  if not((strtoint(copy(DateToStr(date), 1, 2)) < sedDateDay.Value) and
+    (iMonth <= sedDateDay.Value) and (strtoint(copy(DateToStr(date), 8, 2)) <=
+    sedDateYear.Value)) then
   begin
-    ShowMessage('Tournament name too short');
+    ShowMessage('This date is too early');
+    exit;
   end;
-
 end;
 
 procedure TfrmBridgeDatabase.btnEditBackClick(Sender: TObject);
@@ -191,8 +200,10 @@ end;
 
 procedure TfrmBridgeDatabase.btnLoginClick(Sender: TObject);
 var
-  sID, sPassword, sDOB: string;
+  sID, sPassword, sDOB, sName, sSurname, sCountry: string;
+  iRanking: Integer;
 begin
+
   sID := edtID.text;
   sPassword := edtPassword.text;
   dmBrugDatabase_u.DataModule1.tblUsers.Active := True;
@@ -234,48 +245,103 @@ begin
         lblProfCell.Caption := dmBrugDatabase_u.DataModule1.tblUsers
           ['Phone Number'];
 
-         grdRankings.Columns[0].FieldName := 'Name';
+        redRanking.Clear;
+        redRanking.ReadOnly := True;
+        redRanking.Paragraph.TabCount := 10;
+        redRanking.Paragraph.Tab[1] := 50;
+        redRanking.Paragraph.Tab[2] := 200;
+        redRanking.Paragraph.Tab[3] := 350;
+        redRanking.Paragraph.Tab[4] := 500;
+        redRanking.Paragraph.Tab[5] := 650;
+        redRanking.Paragraph.Tab[6] := 800;
+        redRanking.Paragraph.Tab[7] := 950;
+        redRanking.Paragraph.Tab[8] := 1100;
+        redRanking.Paragraph.Tab[9] := 1250;
 
+        redRanking.SelAttributes.style := [fsbold];
+        redRanking.lines.add('Ranking' + #9 + 'Name' + #9 + 'Surname' + #9 +
+          'Wins' + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
+        dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+        dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
 
+        dmBrugDatabase_u.DataModule1.tblPlayer.First;
 
-        if dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = True then
+        iRanking := 0;
+        while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
         begin
-          tsLogin.TabVisible := False;
-          tsRegister.TabVisible := False;
-          tsProfile.TabVisible := True;
-          tsRanking.TabVisible := True;
-          tsSearch.TabVisible := True;
-          tsCreateTournament.TabVisible := True;
-          tsOngoing.TabVisible := True;
-          tsEnterTournament.TabVisible := False;
-          tsMyTournament.TabVisible := False;
-          tsNotices.TabVisible := True;
-          tsEdit.TabVisible := False;
-          tsProfile.Visible := True;
-          pcTabs.ActivePage := tsProfile;
+
+          dmBrugDatabase_u.DataModule1.tblUsers.First;
+
+          while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+          begin
+            if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = dmBrugDatabase_u.DataModule1.tblPlayer['ID'] then
+            begin
+              sName := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
+              sSurname := dmBrugDatabase_u.DataModule1.tblUsers['Surname'];
+              sCountry := dmBrugDatabase_u.DataModule1.tblUsers['Country'];
+              Break;
+            end
+            else dmBrugDatabase_u.DataModule1.tblUsers.Next;
+
+          end;
+              inc(iRanking);
+            dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+            dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
+
+            redRanking.lines.add
+              (IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rank']) + #9 +
+              sname + #9 + sSurname + #9 +
+              IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 +
+              IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 +
+              IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 +
+              IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 +
+              IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer
+              ['TournamentAmount']) + #9 +
+              IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses'] +
+              dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
+            dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+          end;
+          dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+          dmBrugDatabase_u.DataModule1.tblPlayer.post;
+          if dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = True then
+          begin
+            tsLogin.TabVisible := False;
+            tsRegister.TabVisible := False;
+            tsProfile.TabVisible := True;
+            tsRanking.TabVisible := True;
+            tsSearch.TabVisible := True;
+            tsCreateTournament.TabVisible := True;
+            tsOngoing.TabVisible := True;
+            tsEnterTournament.TabVisible := False;
+            tsMyTournament.TabVisible := False;
+            tsNotices.TabVisible := True;
+            tsEdit.TabVisible := False;
+            tsProfile.Visible := True;
+            pcTabs.ActivePage := tsProfile;
+
+          end
+          else
+          begin
+            tsLogin.TabVisible := False;
+            tsRegister.TabVisible := False;
+            tsProfile.TabVisible := True;
+            tsRanking.TabVisible := True;
+            tsSearch.TabVisible := True;
+            tsCreateTournament.TabVisible := False;
+            tsOngoing.TabVisible := True;
+            tsEnterTournament.TabVisible := False;
+            tsMyTournament.TabVisible := False;
+            tsNotices.TabVisible := True;
+            tsEdit.TabVisible := False;
+            tsProfile.Visible := True;
+            pcTabs.ActivePage := tsProfile;
+          end;
+
+          exit;
 
         end
-        else
-        begin
-          tsLogin.TabVisible := False;
-          tsRegister.TabVisible := False;
-          tsProfile.TabVisible := False;
-          tsRanking.TabVisible := True;
-          tsSearch.TabVisible := True;
-          tsCreateTournament.TabVisible := False;
-          tsOngoing.TabVisible := True;
-          tsEnterTournament.TabVisible := False;
-          tsMyTournament.TabVisible := False;
-          tsNotices.TabVisible := False;
-          tsEdit.TabVisible := False;
-          tsRanking.Visible := True;
-          pcTabs.ActivePage := tsRanking;
-        end;
-
-        exit;
-
-      end
       else
       begin
         ShowMessage('Password incorrect');
@@ -284,7 +350,7 @@ begin
     end
     else
     begin
-      dmBrugDatabase_u.DataModule1.tblUsers.next;
+      dmBrugDatabase_u.DataModule1.tblUsers.Next;
     end;
 
   end;
@@ -320,6 +386,7 @@ end;
 
 procedure TfrmBridgeDatabase.btnRegisterClick(Sender: TObject);
 begin
+
   tsLogin.TabVisible := False;
   tsRegister.TabVisible := True;
   tsProfile.TabVisible := False;
@@ -333,11 +400,12 @@ begin
   tsEdit.TabVisible := False;
   tsRegister.Visible := True;
   pcTabs.ActivePage := tsRegister;
+
 end;
 
 procedure TfrmBridgeDatabase.btnRegRegisterClick(Sender: TObject);
 var
-  sCountry, sID, sIDValidate, sname, sSurname, sEmail, SCell, sPassword,
+  sCountry, sID, sIDValidate, sName, sSurname, sEmail, SCell, sPassword,
     sconfirm: string;
   bUsertype, bMale: Boolean;
   i, k, j, l, iIdOddPositions, iIDEvenx2, iEvenDigits, iAdd, iSub: Integer;
@@ -347,7 +415,7 @@ begin
   iIdOddPositions := 0;
   sIDValidate := sID;
   iEvenDigits := 0;
-  sname := edtRegName.text;
+  sName := edtRegName.text;
   sSurname := edtRegSurname.text;
   SCell := edtRegCell.text;
   sEmail := edtRegEmail.text;
@@ -765,30 +833,31 @@ begin
   begin
     if not(sID[i] in ['0' .. '9']) then
     begin
-      ShowMessage('Your ID contains illegal characters'); // Check ID Characters
+      ShowMessage('Your ID contains illegal characters');
+      // Check ID Characters
       exit;
     end;
   end;
 
   repeat
-    iIdOddPositions := iIdOddPositions + StrToInt(sIDValidate[k]);
+    iIdOddPositions := iIdOddPositions + strtoint(sIDValidate[k]);
     Delete(sIDValidate, k, 1);
     inc(k);
   until (k = 7);
   Delete(sIDValidate, k, 1);
 
-  iIDEvenx2 := StrToInt(sIDValidate) * 2;
+  iIDEvenx2 := strtoint(sIDValidate) * 2;
 
   for j := 1 to Length(IntToStr(iIDEvenx2)) do
   begin
-    iEvenDigits := iEvenDigits + StrToInt(IntToStr(iIDEvenx2)[j]);
+    iEvenDigits := iEvenDigits + strtoint(IntToStr(iIDEvenx2)[j]);
   end;
 
   iAdd := iIdOddPositions + iEvenDigits;
 
-  iSub := 10 - StrToInt(IntToStr(iAdd)[2]);
+  iSub := 10 - strtoint(IntToStr(iAdd)[2]);
 
-  if iSub <> StrToInt(sID[13]) then
+  if iSub <> strtoint(sID[13]) then
   begin
     ShowMessage('ID invalid');
     exit;
@@ -802,15 +871,15 @@ begin
       ShowMessage('User Already exists');
       exit;
     end;
-    dmBrugDatabase_u.DataModule1.tblUsers.next
+    dmBrugDatabase_u.DataModule1.tblUsers.Next
   end;
 
-  if (StrToInt(copy(sID, 7, 4)) <= 4999) then
+  if (strtoint(copy(sID, 7, 4)) <= 4999) then
     bMale := False
   else
     bMale := True;
 
-  if Length(sname) < 2 then
+  if Length(sName) < 2 then
   begin
     ShowMessage('Name too short');
     exit;
@@ -879,7 +948,7 @@ begin
     tblUsers.last;
     tblUsers.insert;
     tblUsers['ID Number'] := sID;
-    tblUsers['Name'] := sname;
+    tblUsers['Name'] := sName;
     tblUsers['Surname'] := sSurname;
     tblUsers['Gender'] := bMale;
     tblUsers['Organiser'] := bUsertype;
@@ -893,8 +962,10 @@ begin
 
   if bUsertype = False then
   begin
-    dmBrugDatabase_u.DataModule1.tblPlayer['ID Number'] := sID;
+    dmBrugDatabase_u.DataModule1.tblPlayer['ID'] := sID;
+    dmBrugDatabase_u.DataModule1.tblPlayer['Rating'] := 600;
     dmBrugDatabase_u.DataModule1.tblPlayer.post;
+
   end;
 
   tsLogin.TabVisible := True;
@@ -921,7 +992,9 @@ begin
 end;
 
 procedure TfrmBridgeDatabase.FormCreate(Sender: TObject);
+
 begin
+
   redNotices.ReadOnly := True;
   redNotices.Paragraph.TabCount := 3;
   redNotices.Paragraph.Tab[1] := 150;
@@ -983,6 +1056,9 @@ begin
 
   Image1.Width := tsLogin.Width;
   Image1.Height := tsLogin.Height;
+
+  Image2.Width := tsRegister.Width;
+  Image2.Height := tsRegister.Height;
 
 end;
 
