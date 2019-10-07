@@ -61,13 +61,11 @@ type
     tsNotices: TTabSheet;
     redNotices: TRichEdit;
     tsEdit: TTabSheet;
-    lblEditID: TLabel;
     lblEditName: TLabel;
     lblEditSurname: TLabel;
     lblEditEmail: TLabel;
     lblEditCell: TLabel;
     lblEditCountry: TLabel;
-    edtEditID: TEdit;
     edtEditName: TEdit;
     edtEditSurname: TEdit;
     edtEditEmail: TEdit;
@@ -130,7 +128,13 @@ type
     procedure btnCreateTourClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure btnSearchClick(Sender: TObject);
+    procedure pcTabsChange(Sender: TObject);
+    procedure btnEditChangePasswdClick(Sender: TObject);
+    procedure btnEditSaveClick(Sender: TObject);
   private
+
+    sLogedinID: string;
+    function NumToName(iNumber : integer): String;
     { Private declarations }
   public
     { Public declarations }
@@ -187,93 +191,146 @@ begin
   pcTabs.ActivePage := tsProfile;
 end;
 
+procedure TfrmBridgeDatabase.btnEditChangePasswdClick(Sender: TObject);
+var
+ sPassword, sConfirm : string;
+begin
+  dmBrugDatabase_u.DataModule1.tblUsers.First;
+  while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+  begin
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = sLogedinID then
+    begin
+      if InputBox('Change Password', #31'Old Password:', '')
+        = dmBrugDatabase_u.DataModule1.tblUsers['Password'] then
+        begin
+          sPassword := InputBox('Change Password', #31'New Password:', '');
+          sConfirm :=  InputBox('Change Password', #31'Confirm Password:', '') ;
+          if sPassword = sConfirm then
+          begin
+           dmBrugDatabase_u.DataModule1.tblUsers.edit;
+           dmBrugDatabase_u.DataModule1.tblUsers['Password'] := spassword;
+           showmessage('Password changed succesfully');
+          end;
+
+        end
+        else ShowMessage('Password incorrect');
+
+        break;
+    end
+    else
+      dmBrugDatabase_u.DataModule1.tblUsers.Next;
+  end;
+    dmBrugDatabase_u.DataModule1.tblUsers.Post;
+end;
+
+procedure TfrmBridgeDatabase.btnEditSaveClick(Sender: TObject);
+begin
+ dmBrugDatabase_u.DataModule1.tblUsers.First;
+  while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+  begin
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = sLogedinID then
+    begin
+      dmBrugDatabase_u.DataModule1.tblUsers.Edit;
+      dmBrugDatabase_u.DataModule1.tblUsers['Name'] := edtEditName.text;
+      dmBrugDatabase_u.DataModule1.tblUsers['Surname'] := edtEditSurname.text;
+      dmBrugDatabase_u.DataModule1.tblUsers['Email'] := edtEditEmail.text;
+      dmBrugDatabase_u.DataModule1.tblUsers['Phone Number'] := edtEditCell.text;
+      dmBrugDatabase_u.DataModule1.tblUsers['Country'] := NumToName(cbEditCountry.ItemIndex);
+      break;
+    end
+    else
+      dmBrugDatabase_u.DataModule1.tblUsers.Next;
+  end;
+  dmBrugDatabase_u.DataModule1.tblUsers.Post;
+end;
+
 procedure TfrmBridgeDatabase.btnGuestClick(Sender: TObject);
 var
   sID, sPassword, sDOB, sName, sSurname, sCountry: string;
   iRanking: Integer;
 begin
-   edtID.Clear;
-        edtPassword.Clear;
+  edtID.Clear;
+  edtPassword.Clear;
+  edtSearch.Clear;
+  redSearch.Clear;
+  redSearch.ReadOnly := True;
+  redSearch.Paragraph.TabCount := 11;
+  redSearch.Paragraph.Tab[1] := 100;
+  redSearch.Paragraph.Tab[2] := 200;
+  redSearch.Paragraph.Tab[3] := 300;
+  redSearch.Paragraph.Tab[4] := 400;
+  redSearch.Paragraph.Tab[5] := 500;
+  redSearch.Paragraph.Tab[6] := 600;
+  redSearch.Paragraph.Tab[7] := 700;
+  redSearch.Paragraph.Tab[8] := 800;
+  redSearch.Paragraph.Tab[9] := 900;
+  redSearch.Paragraph.Tab[10] := 1000;
 
-        redSearch.Clear;
-        redSearch.ReadOnly := True;
-        redSearch.Paragraph.TabCount := 11;
-        redSearch.Paragraph.Tab[1] := 100;
-        redSearch.Paragraph.Tab[2] := 200;
-        redSearch.Paragraph.Tab[3] := 300;
-        redSearch.Paragraph.Tab[4] := 400;
-        redSearch.Paragraph.Tab[5] := 500;
-        redSearch.Paragraph.Tab[6] := 600;
-        redSearch.Paragraph.Tab[7] := 700;
-        redSearch.Paragraph.Tab[8] := 800;
-        redSearch.Paragraph.Tab[9] := 900;
-        redSearch.Paragraph.Tab[10] := 1000;
+  redSearch.SelAttributes.style := [fsbold];
+  redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins' + #9 +
+    'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+    'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
-        redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
-          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+  redRanking.Clear;
+  redRanking.ReadOnly := True;
+  redRanking.Paragraph.TabCount := 10;
+  redRanking.Paragraph.Tab[1] := 50;
+  redRanking.Paragraph.Tab[2] := 200;
+  redRanking.Paragraph.Tab[3] := 350;
+  redRanking.Paragraph.Tab[4] := 500;
+  redRanking.Paragraph.Tab[5] := 650;
+  redRanking.Paragraph.Tab[6] := 800;
+  redRanking.Paragraph.Tab[7] := 950;
+  redRanking.Paragraph.Tab[8] := 1100;
+  redRanking.Paragraph.Tab[9] := 1250;
 
-        redRanking.Clear;
-        redRanking.ReadOnly := True;
-        redRanking.Paragraph.TabCount := 10;
-        redRanking.Paragraph.Tab[1] := 50;
-        redRanking.Paragraph.Tab[2] := 200;
-        redRanking.Paragraph.Tab[3] := 350;
-        redRanking.Paragraph.Tab[4] := 500;
-        redRanking.Paragraph.Tab[5] := 650;
-        redRanking.Paragraph.Tab[6] := 800;
-        redRanking.Paragraph.Tab[7] := 950;
-        redRanking.Paragraph.Tab[8] := 1100;
-        redRanking.Paragraph.Tab[9] := 1250;
+  redRanking.SelAttributes.style := [fsbold];
+  redRanking.lines.add('Ranking' + #9 + 'Name' + #9 + 'Surname' + #9 + 'Wins' +
+    #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Tournament amount' +
+    #9 + 'Games Played' + #9 + 'Country');
 
-        redRanking.SelAttributes.style := [fsbold];
-        redRanking.lines.add('Ranking' + #9 + 'Name' + #9 + 'Surname' + #9 +
-          'Wins' + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 +
-          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+  dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+  dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
 
-        dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
-        dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
+  dmBrugDatabase_u.DataModule1.tblPlayer.First;
 
-        dmBrugDatabase_u.DataModule1.tblPlayer.First;
+  iRanking := 0;
+  while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
+  begin
 
-        iRanking := 0;
-        while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
-        begin
+    dmBrugDatabase_u.DataModule1.tblUsers.First;
 
-          dmBrugDatabase_u.DataModule1.tblUsers.First;
+    while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+    begin
+      if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
+        = dmBrugDatabase_u.DataModule1.tblPlayer['ID'] then
+      begin
+        sName := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
+        sSurname := dmBrugDatabase_u.DataModule1.tblUsers['Surname'];
+        sCountry := dmBrugDatabase_u.DataModule1.tblUsers['Country'];
+        break;
+      end
+      else
+        dmBrugDatabase_u.DataModule1.tblUsers.Next;
 
-          while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
-          begin
-            if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
-              = dmBrugDatabase_u.DataModule1.tblPlayer['ID'] then
-            begin
-              sName := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
-              sSurname := dmBrugDatabase_u.DataModule1.tblUsers['Surname'];
-              sCountry := dmBrugDatabase_u.DataModule1.tblUsers['Country'];
-              Break;
-            end
-            else
-              dmBrugDatabase_u.DataModule1.tblUsers.Next;
+    end;
+    inc(iRanking);
+    dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+    dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
 
-          end;
-          inc(iRanking);
-          dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
-          dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
-
-          redRanking.lines.add(IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer
-            ['Rank']) + #9 + sName + #9 + sSurname + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['TournamentAmount'])
-            + #9 + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses'] +
-            dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
-          dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-        end;
-        dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
-        dmBrugDatabase_u.DataModule1.tblPlayer.post;
+    redRanking.lines.add(IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rank']
+      ) + #9 + sName + #9 + sSurname + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['TournamentAmount']) + #9
+      + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses'] +
+      dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
+    dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+  end;
+  dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+  dmBrugDatabase_u.DataModule1.tblPlayer.post;
 
   tsLogin.TabVisible := True;
   tsRegister.TabVisible := False;
@@ -309,8 +366,10 @@ begin
     begin
       if sPassword = dmBrugDatabase_u.DataModule1.tblUsers['Password'] then
       begin
+        sLogedinID := dmBrugDatabase_u.DataModule1.tblUsers['ID Number'];
         edtID.Clear;
         edtPassword.Clear;
+        edtSearch.Clear;
         lblProfID.Caption := dmBrugDatabase_u.DataModule1.tblUsers['ID Number'];
         lblProfName.Caption := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
         lblProfSurname.Caption := dmBrugDatabase_u.DataModule1.tblUsers
@@ -393,7 +452,7 @@ begin
               sName := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
               sSurname := dmBrugDatabase_u.DataModule1.tblUsers['Surname'];
               sCountry := dmBrugDatabase_u.DataModule1.tblUsers['Country'];
-              Break;
+              break;
             end
             else
               dmBrugDatabase_u.DataModule1.tblUsers.Next;
@@ -533,7 +592,466 @@ begin
   sPassword := edtRegPasswd.text;
   sconfirm := edtRegConPasswd.text;
 
-  case cbRegCountry.ItemIndex of
+  sCountry := NumToName(cbRegCountry.ItemIndex);
+
+  if Length(sID) <> 13 then
+  begin
+    ShowMessage('Your ID is not 13 Characters'); // Check ID Length
+    exit;
+  end;
+
+  for i := 1 to 13 do
+  begin
+    if not(sID[i] in ['0' .. '9']) then
+    begin
+      ShowMessage('Your ID contains illegal characters');
+      // Check ID Characters
+      exit;
+    end;
+  end;
+
+  repeat
+    iIdOddPositions := iIdOddPositions + strtoint(sIDValidate[k]);
+    Delete(sIDValidate, k, 1);
+    inc(k);
+  until (k = 7);
+  Delete(sIDValidate, k, 1);
+
+  iIDEvenx2 := strtoint(sIDValidate) * 2;
+
+  for j := 1 to Length(IntToStr(iIDEvenx2)) do
+  begin
+    iEvenDigits := iEvenDigits + strtoint(IntToStr(iIDEvenx2)[j]);
+  end;
+
+  iAdd := iIdOddPositions + iEvenDigits;
+
+  iSub := 10 - strtoint(IntToStr(iAdd)[2]);
+
+  if iSub <> strtoint(sID[13]) then
+  begin
+    ShowMessage('ID invalid');
+    exit;
+  end;
+
+  dmBrugDatabase_u.DataModule1.tblUsers.First;
+  while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+  begin
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = sID then
+    begin
+      ShowMessage('User Already exists');
+      exit;
+    end;
+    dmBrugDatabase_u.DataModule1.tblUsers.Next
+  end;
+
+  if (strtoint(copy(sID, 7, 4)) <= 4999) then
+    bMale := False
+  else
+    bMale := True;
+
+  if Length(sName) < 2 then
+  begin
+    ShowMessage('Name too short');
+    exit;
+  end;
+  if Length(sSurname) < 2 then
+  begin
+    ShowMessage('Surname too short');
+    exit;
+  end;
+
+  case rgRegType.ItemIndex of
+    - 1:
+      begin
+        ShowMessage('Please select user type');
+        exit;
+      end;
+    0:
+      bUsertype := True;
+    1:
+      bUsertype := False
+
+  end;
+
+  if Length(sEmail) < 5 then
+  begin
+    ShowMessage('Invalid Email');
+    exit;
+  end;
+
+  if not(containsText(sEmail, '@')) then
+  begin
+    ShowMessage('No Domain');
+    exit;
+  end;
+
+  if Length(SCell) < 10 then
+  begin
+    ShowMessage('Number too short');
+    exit;
+  end;
+
+  if Length(SCell) > 10 then
+  begin
+    ShowMessage('Number too long');
+    exit;
+  end;
+
+  for l := 1 to 10 do
+  begin
+    if not(SCell[l] in ['0' .. '9']) then
+    begin
+      ShowMessage('Your Phone number contains illegal characters');
+      // Check Phone Characters
+      exit;
+    end;
+  end;
+
+  if sPassword <> sconfirm then
+  begin
+    ShowMessage('Passwords does not match');
+    exit;
+  end;
+
+  with dmBrugDatabase_u.DataModule1 do
+  begin
+    tblUsers.last;
+    tblUsers.insert;
+    tblUsers['ID Number'] := sID;
+    tblUsers['Name'] := sName;
+    tblUsers['Surname'] := sSurname;
+    tblUsers['Gender'] := bMale;
+    tblUsers['Organiser'] := bUsertype;
+    tblUsers['Country'] := sCountry;
+    tblUsers['Password'] := sPassword;
+    tblUsers['Email'] := sEmail;
+    tblUsers['Phone Number'] := SCell;
+    tblUsers.post;
+
+  end;
+
+  if bUsertype = False then
+  begin
+    dmBrugDatabase_u.DataModule1.tblPlayer['ID'] := sID;
+    dmBrugDatabase_u.DataModule1.tblPlayer['Rating'] := 600;
+    dmBrugDatabase_u.DataModule1.tblPlayer.post;
+
+  end;
+
+  tsLogin.TabVisible := True;
+  tsRegister.TabVisible := False;
+  tsLogin.Visible := True;
+  pcTabs.ActivePage := tsLogin;
+end;
+
+procedure TfrmBridgeDatabase.btnSearchClick(Sender: TObject);
+Var
+  iWins, iLoses, iWinrate, iRating, iRank, iTourAmount, iGamesPlayed: Integer;
+begin
+  // Search for Players
+  case rgSearch.ItemIndex of
+    0:
+      begin
+        dmBrugDatabase_u.DataModule1.tblUsers.First;
+        redSearch.Clear;
+        redSearch.SelAttributes.style := [fsbold];
+        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
+          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+
+        while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+        begin
+          if (Pos(UpperCase(edtSearch.text),
+            UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Name'])) > 0) and
+            (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
+          begin
+
+            dmBrugDatabase_u.DataModule1.tblPlayer.First;
+
+            while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
+            begin
+              if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
+                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
+              begin
+                iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
+                iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
+                iWinrate := dmBrugDatabase_u.DataModule1.tblPlayer['WinRate'];
+                iRating := dmBrugDatabase_u.DataModule1.tblPlayer['Rating'];
+                iRank := dmBrugDatabase_u.DataModule1.tblPlayer['Rank'];
+                iTourAmount := dmBrugDatabase_u.DataModule1.tblPlayer
+                  ['TournamentAmount'];
+                iGamesPlayed := iWins + iLoses;
+                break;
+              end
+              else
+                dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+
+            end;
+
+            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
+              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
+              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
+              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
+              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
+            dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+          end;
+          dmBrugDatabase_u.DataModule1.tblUsers.Next;
+        end;
+
+      end;
+
+    1:
+      begin
+        dmBrugDatabase_u.DataModule1.tblUsers.First;
+        redSearch.Clear;
+        redSearch.SelAttributes.style := [fsbold];
+        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
+          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+
+        while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+        begin
+          if (Pos(UpperCase(edtSearch.text),
+            UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Surname'])) > 0)
+            and (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False)
+          then
+          begin
+
+            dmBrugDatabase_u.DataModule1.tblPlayer.First;
+
+            while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
+            begin
+              if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
+                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
+              begin
+                iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
+                iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
+                iWinrate := dmBrugDatabase_u.DataModule1.tblPlayer['WinRate'];
+                iRating := dmBrugDatabase_u.DataModule1.tblPlayer['Rating'];
+                iRank := dmBrugDatabase_u.DataModule1.tblPlayer['Rank'];
+                iTourAmount := dmBrugDatabase_u.DataModule1.tblPlayer
+                  ['TournamentAmount'];
+                iGamesPlayed := iWins + iLoses;
+                break;
+              end
+              else
+                dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+
+            end;
+
+            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
+              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
+              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
+              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
+              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
+            dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+          end;
+          dmBrugDatabase_u.DataModule1.tblUsers.Next;
+        end;
+
+      end;
+    2:
+      begin
+        dmBrugDatabase_u.DataModule1.tblUsers.First;
+        redSearch.Clear;
+        redSearch.SelAttributes.style := [fsbold];
+        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
+          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+
+        while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+        begin
+          if (Pos(edtSearch.text, dmBrugDatabase_u.DataModule1.tblUsers
+            ['ID Number']) > 0) and
+            (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
+          begin
+
+            dmBrugDatabase_u.DataModule1.tblPlayer.First;
+
+            while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
+            begin
+              if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
+                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
+              begin
+                iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
+                iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
+                iWinrate := dmBrugDatabase_u.DataModule1.tblPlayer['WinRate'];
+                iRating := dmBrugDatabase_u.DataModule1.tblPlayer['Rating'];
+                iRank := dmBrugDatabase_u.DataModule1.tblPlayer['Rank'];
+                iTourAmount := dmBrugDatabase_u.DataModule1.tblPlayer
+                  ['TournamentAmount'];
+                iGamesPlayed := iWins + iLoses;
+                break;
+              end
+              else
+                dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+
+            end;
+
+            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
+              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
+              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
+              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
+              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
+            dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+          end;
+          dmBrugDatabase_u.DataModule1.tblUsers.Next;
+        end;
+
+      end;
+  end;
+
+  // while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+  // begin
+  // if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']  then
+  // end;
+end;
+
+procedure TfrmBridgeDatabase.Button3Click(Sender: TObject);
+var
+  i: Integer;
+begin
+  dmBrugDatabase_u.DataModule1.tblUsers.First;
+  while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+  begin
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = sLogedinID then
+    begin
+      edtEditName.text := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
+      edtEditSurname.text := dmBrugDatabase_u.DataModule1.tblUsers['Surname'];
+      for i := 0 to 198 do
+      begin
+        if dmBrugDatabase_u.DataModule1.tblUsers['Country']
+          = cbEditCountry.Items[i] then
+        begin
+          cbEditCountry.ItemIndex := i;
+          break;
+        end;
+      end;
+
+      edtEditEmail.text := dmBrugDatabase_u.DataModule1.tblUsers['Email'];
+      edtEditCell.text := dmBrugDatabase_u.DataModule1.tblUsers['Phone Number'];
+      break;
+    end
+    else
+      dmBrugDatabase_u.DataModule1.tblUsers.Next;
+  end;
+  tsEdit.TabVisible := True;
+  tsEdit.Visible := True;
+  pcTabs.ActivePage := tsEdit;
+end;
+
+procedure TfrmBridgeDatabase.Button4Click(Sender: TObject);
+begin
+  tsLogin.TabVisible := True;
+  tsRegister.TabVisible := False;
+  tsProfile.TabVisible := False;
+  tsRanking.TabVisible := False;
+  tsSearch.TabVisible := False;
+  tsCreateTournament.TabVisible := False;
+  tsOngoing.TabVisible := False;
+  tsEnterTournament.TabVisible := False;
+  tsMyTournament.TabVisible := False;
+  tsNotices.TabVisible := False;
+  tsEdit.TabVisible := False;
+  tsLogin.Visible := True;
+  pcTabs.ActivePage := tsLogin;
+end;
+
+procedure TfrmBridgeDatabase.FormCreate(Sender: TObject);
+
+begin
+
+  redNotices.ReadOnly := True;
+  redNotices.Paragraph.TabCount := 3;
+  redNotices.Paragraph.Tab[1] := 150;
+  redNotices.Paragraph.Tab[2] := 600;
+  redNotices.Paragraph.Tab[3] := 700;
+
+  redNotices.SelAttributes.style := [fsbold];
+  redNotices.lines.add('Sender:' + #9 + 'Notice:' + #9 + 'Time:' + #9 +
+    'Type:');
+
+  tsLogin.Caption := 'Login';
+  tsRegister.Caption := 'Register New User';
+  tsProfile.Caption := 'My Profile';
+  tsRanking.Caption := 'Player rankings';
+  tsSearch.Caption := 'Search Player';
+  tsCreateTournament.Caption := 'Create Tournament';
+  tsOngoing.Caption := 'Ongoing Tournaments';
+  tsEnterTournament.Caption := 'Enter Tournament';
+  tsMyTournament.Caption := 'My Tournament';
+  tsNotices.Caption := 'Notices';
+  tsEdit.Caption := 'Edit Profile';
+
+  tsLogin.TabVisible := True;
+  tsRegister.TabVisible := False;
+  tsProfile.TabVisible := False;
+  tsRanking.TabVisible := False;
+  tsSearch.TabVisible := False;
+  tsCreateTournament.TabVisible := False;
+  tsOngoing.TabVisible := False;
+  tsEnterTournament.TabVisible := False;
+  tsMyTournament.TabVisible := False;
+  tsNotices.TabVisible := False;
+  tsEdit.TabVisible := False;
+  tsLogin.Visible := True;
+  pcTabs.ActivePage := tsLogin;
+
+  rgSearch.ItemIndex := 0;
+  lblSearchPlayer.Caption := 'Search by Name:';
+end;
+
+procedure TfrmBridgeDatabase.FormResize(Sender: TObject);
+begin
+
+  lblID.left := round((tsLogin.Width - edtID.Width) / 2);
+  edtID.left := round((tsLogin.Width - edtID.Width) / 2);
+  lblPassword.left := round((tsLogin.Width - edtPassword.Width) / 2);
+  edtPassword.left := round((tsLogin.Width - edtPassword.Width) / 2);
+  btnLogin.left := round((tsLogin.Width - btnLogin.Width) / 2);
+  btnRegister.left := round((tsLogin.Width - btnRegister.Width) / 2);
+  btnGuest.left := round((tsLogin.Width - btnGuest.Width) / 2);
+
+  lblID.top := round((tsLogin.Height - edtID.Height) / 2) - 114;
+  edtID.top := round((tsLogin.Height - edtID.Height) / 2) - 89;
+  lblPassword.top := round((tsLogin.Height - edtPassword.Height) / 2) - 62;
+  edtPassword.top := round((tsLogin.Height - edtPassword.Height) / 2) - 37;
+  btnLogin.top := round((tsLogin.Height - btnLogin.Height) / 2) - 10;
+  btnRegister.top := round((tsLogin.Height - btnRegister.Height) / 2) + 21;
+  btnGuest.top := round((tsLogin.Height - btnGuest.Height) / 2) + 52;
+
+  Image1.Width := tsLogin.Width;
+  Image1.Height := tsLogin.Height;
+
+  Image2.Width := tsRegister.Width;
+  Image2.Height := tsRegister.Height;
+
+  Image3.Width := tsProfile.Width;
+  Image3.Height := tsProfile.Height;
+
+  Image4.Width := tsRanking.Width;
+  Image4.Height := tsRanking.Height;
+
+  Image5.Width := tsSearch.Width;
+  Image5.Height := tsSearch.Height;
+
+  Image6.Width := tsSearch.Width;
+  Image6.Height := tsSearch.Height;
+
+end;
+
+function TfrmBridgeDatabase.NumToName(iNumber: integer): String;
+var
+sCountry : string;
+begin
+    case iNumber of
     0:
       sCountry := 'Afghanistan';
     1:
@@ -934,441 +1452,12 @@ begin
       sCountry := 'Zimbabwe';
 
   end;
-  if Length(sID) <> 13 then
-  begin
-    ShowMessage('Your ID is not 13 Characters'); // Check ID Length
-    exit;
-  end;
-
-  for i := 1 to 13 do
-  begin
-    if not(sID[i] in ['0' .. '9']) then
-    begin
-      ShowMessage('Your ID contains illegal characters');
-      // Check ID Characters
-      exit;
-    end;
-  end;
-
-  repeat
-    iIdOddPositions := iIdOddPositions + strtoint(sIDValidate[k]);
-    Delete(sIDValidate, k, 1);
-    inc(k);
-  until (k = 7);
-  Delete(sIDValidate, k, 1);
-
-  iIDEvenx2 := strtoint(sIDValidate) * 2;
-
-  for j := 1 to Length(IntToStr(iIDEvenx2)) do
-  begin
-    iEvenDigits := iEvenDigits + strtoint(IntToStr(iIDEvenx2)[j]);
-  end;
-
-  iAdd := iIdOddPositions + iEvenDigits;
-
-  iSub := 10 - strtoint(IntToStr(iAdd)[2]);
-
-  if iSub <> strtoint(sID[13]) then
-  begin
-    ShowMessage('ID invalid');
-    exit;
-  end;
-
-  dmBrugDatabase_u.DataModule1.tblUsers.First;
-  while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
-  begin
-    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = sID then
-    begin
-      ShowMessage('User Already exists');
-      exit;
-    end;
-    dmBrugDatabase_u.DataModule1.tblUsers.Next
-  end;
-
-  if (strtoint(copy(sID, 7, 4)) <= 4999) then
-    bMale := False
-  else
-    bMale := True;
-
-  if Length(sName) < 2 then
-  begin
-    ShowMessage('Name too short');
-    exit;
-  end;
-  if Length(sSurname) < 2 then
-  begin
-    ShowMessage('Surname too short');
-    exit;
-  end;
-
-  case rgRegType.ItemIndex of
-    - 1:
-      begin
-        ShowMessage('Please select user type');
-        exit;
-      end;
-    0:
-      bUsertype := True;
-    1:
-      bUsertype := False
-
-  end;
-
-  if Length(sEmail) < 5 then
-  begin
-    ShowMessage('Invalid Email');
-    exit;
-  end;
-
-  if not(containsText(sEmail, '@')) then
-  begin
-    ShowMessage('No Domain');
-    exit;
-  end;
-
-  if Length(SCell) < 10 then
-  begin
-    ShowMessage('Number too short');
-    exit;
-  end;
-
-  if Length(SCell) > 10 then
-  begin
-    ShowMessage('Number too long');
-    exit;
-  end;
-
-  for l := 1 to 10 do
-  begin
-    if not(SCell[l] in ['0' .. '9']) then
-    begin
-      ShowMessage('Your Phone number contains illegal characters');
-      // Check Phone Characters
-      exit;
-    end;
-  end;
-
-  if sPassword <> sconfirm then
-  begin
-    ShowMessage('Passwords does not match');
-    exit;
-  end;
-
-  with dmBrugDatabase_u.DataModule1 do
-  begin
-    tblUsers.last;
-    tblUsers.insert;
-    tblUsers['ID Number'] := sID;
-    tblUsers['Name'] := sName;
-    tblUsers['Surname'] := sSurname;
-    tblUsers['Gender'] := bMale;
-    tblUsers['Organiser'] := bUsertype;
-    tblUsers['Country'] := sCountry;
-    tblUsers['Password'] := sPassword;
-    tblUsers['Email'] := sEmail;
-    tblUsers['Phone Number'] := SCell;
-    tblUsers.post;
-
-  end;
-
-  if bUsertype = False then
-  begin
-    dmBrugDatabase_u.DataModule1.tblPlayer['ID'] := sID;
-    dmBrugDatabase_u.DataModule1.tblPlayer['Rating'] := 600;
-    dmBrugDatabase_u.DataModule1.tblPlayer.post;
-
-  end;
-
-  tsLogin.TabVisible := True;
-  tsRegister.TabVisible := False;
-  tsLogin.Visible := True;
-  pcTabs.ActivePage := tsLogin;
+  Result := sCountry;
 end;
 
-procedure TfrmBridgeDatabase.btnSearchClick(Sender: TObject);
-Var
-  iWins, iLoses, iWinrate, iRating, iRank, iTourAmount, iGamesPlayed: Integer;
+procedure TfrmBridgeDatabase.pcTabsChange(Sender: TObject);
 begin
-  // Search for Players
-  case rgSearch.ItemIndex of
-    0:
-      begin
-        dmBrugDatabase_u.DataModule1.tblUsers.First;
-        redSearch.Clear;
-        redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
-          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
-
-        while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
-        begin
-          if (Pos(UpperCase(edtSearch.text),
-            UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Name'])) > 0) and
-            (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
-          begin
-
-            dmBrugDatabase_u.DataModule1.tblPlayer.First;
-
-            while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
-            begin
-              if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
-                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
-              begin
-                iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
-                iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
-                iWinrate := dmBrugDatabase_u.DataModule1.tblPlayer['WinRate'];
-                iRating := dmBrugDatabase_u.DataModule1.tblPlayer['Rating'];
-                iRank := dmBrugDatabase_u.DataModule1.tblPlayer['Rank'];
-                iTourAmount := dmBrugDatabase_u.DataModule1.tblPlayer
-                  ['TournamentAmount'];
-                iGamesPlayed := iWins + iLoses;
-                Break;
-              end
-              else
-                dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-
-            end;
-
-            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
-              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
-              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
-              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
-              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
-              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
-              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
-            dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-          end;
-          dmBrugDatabase_u.DataModule1.tblUsers.Next;
-        end;
-
-      end;
-
-    1:
-      begin
-        dmBrugDatabase_u.DataModule1.tblUsers.First;
-        redSearch.Clear;
-        redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
-          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
-
-        while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
-        begin
-          if (Pos(UpperCase(edtSearch.text),
-            UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Surname'])) > 0)
-            and (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False)
-          then
-          begin
-
-            dmBrugDatabase_u.DataModule1.tblPlayer.First;
-
-            while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
-            begin
-              if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
-                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
-              begin
-                iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
-                iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
-                iWinrate := dmBrugDatabase_u.DataModule1.tblPlayer['WinRate'];
-                iRating := dmBrugDatabase_u.DataModule1.tblPlayer['Rating'];
-                iRank := dmBrugDatabase_u.DataModule1.tblPlayer['Rank'];
-                iTourAmount := dmBrugDatabase_u.DataModule1.tblPlayer
-                  ['TournamentAmount'];
-                iGamesPlayed := iWins + iLoses;
-                Break;
-              end
-              else
-                dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-
-            end;
-
-            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
-              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
-              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
-              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
-              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
-              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
-              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
-            dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-          end;
-          dmBrugDatabase_u.DataModule1.tblUsers.Next;
-        end;
-
-      end;
-    2:
-      begin
-        dmBrugDatabase_u.DataModule1.tblUsers.First;
-        redSearch.Clear;
-        redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
-          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
-
-        while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
-        begin
-          if (Pos(edtSearch.text, dmBrugDatabase_u.DataModule1.tblUsers
-            ['ID Number']) > 0) and
-            (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
-          begin
-
-            dmBrugDatabase_u.DataModule1.tblPlayer.First;
-
-            while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
-            begin
-              if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
-                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
-              begin
-                iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
-                iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
-                iWinrate := dmBrugDatabase_u.DataModule1.tblPlayer['WinRate'];
-                iRating := dmBrugDatabase_u.DataModule1.tblPlayer['Rating'];
-                iRank := dmBrugDatabase_u.DataModule1.tblPlayer['Rank'];
-                iTourAmount := dmBrugDatabase_u.DataModule1.tblPlayer
-                  ['TournamentAmount'];
-                iGamesPlayed := iWins + iLoses;
-                Break;
-              end
-              else
-                dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-
-            end;
-
-            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
-              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
-              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
-              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
-              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
-              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
-              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
-            dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-          end;
-          dmBrugDatabase_u.DataModule1.tblUsers.Next;
-        end;
-
-      end;
-  end;
-
-  // while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
-  // begin
-  // if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']  then
-  // end;
-end;
-
-procedure TfrmBridgeDatabase.Button3Click(Sender: TObject);
-begin
-  tsLogin.TabVisible := False;
-  tsRegister.TabVisible := False;
-  tsProfile.TabVisible := False;
-  tsRanking.TabVisible := False;
-  tsSearch.TabVisible := False;
-  tsCreateTournament.TabVisible := False;
-  tsOngoing.TabVisible := False;
-  tsEnterTournament.TabVisible := False;
-  tsMyTournament.TabVisible := False;
-  tsNotices.TabVisible := False;
-  tsEdit.TabVisible := True;
-  tsEdit.Visible := True;
-  pcTabs.ActivePage := tsEdit;
-end;
-
-procedure TfrmBridgeDatabase.Button4Click(Sender: TObject);
-begin
-  tsLogin.TabVisible := True;
-  tsRegister.TabVisible := False;
-  tsProfile.TabVisible := False;
-  tsRanking.TabVisible := False;
-  tsSearch.TabVisible := False;
-  tsCreateTournament.TabVisible := False;
-  tsOngoing.TabVisible := False;
-  tsEnterTournament.TabVisible := False;
-  tsMyTournament.TabVisible := False;
-  tsNotices.TabVisible := False;
   tsEdit.TabVisible := False;
-  tsLogin.Visible := True;
-  pcTabs.ActivePage := tsLogin;
-end;
-
-procedure TfrmBridgeDatabase.FormCreate(Sender: TObject);
-
-begin
-
-  redNotices.ReadOnly := True;
-  redNotices.Paragraph.TabCount := 3;
-  redNotices.Paragraph.Tab[1] := 150;
-  redNotices.Paragraph.Tab[2] := 600;
-  redNotices.Paragraph.Tab[3] := 700;
-
-  redNotices.SelAttributes.style := [fsbold];
-  redNotices.lines.add('Sender:' + #9 + 'Notice:' + #9 + 'Time:' + #9 +
-    'Type:');
-
-  tsLogin.Caption := 'Login';
-  tsRegister.Caption := 'Register New User';
-  tsProfile.Caption := 'My Profile';
-  tsRanking.Caption := 'Player rankings';
-  tsSearch.Caption := 'Search Player';
-  tsCreateTournament.Caption := 'Create Tournament';
-  tsOngoing.Caption := 'Ongoing Tournaments';
-  tsEnterTournament.Caption := 'Enter Tournament';
-  tsMyTournament.Caption := 'My Tournament';
-  tsNotices.Caption := 'Notices';
-  tsEdit.Caption := 'Edit Profile';
-
-  tsLogin.TabVisible := True;
-  tsRegister.TabVisible := False;
-  tsProfile.TabVisible := False;
-  tsRanking.TabVisible := False;
-  tsSearch.TabVisible := False;
-  tsCreateTournament.TabVisible := False;
-  tsOngoing.TabVisible := False;
-  tsEnterTournament.TabVisible := False;
-  tsMyTournament.TabVisible := False;
-  tsNotices.TabVisible := False;
-  tsEdit.TabVisible := False;
-  tsLogin.Visible := True;
-  pcTabs.ActivePage := tsLogin;
-
-  rgSearch.ItemIndex := 0;
-  lblSearchPlayer.Caption := 'Search by Name:';
-end;
-
-procedure TfrmBridgeDatabase.FormResize(Sender: TObject);
-begin
-
-  lblID.left := round((tsLogin.Width - edtID.Width) / 2);
-  edtID.left := round((tsLogin.Width - edtID.Width) / 2);
-  lblPassword.left := round((tsLogin.Width - edtPassword.Width) / 2);
-  edtPassword.left := round((tsLogin.Width - edtPassword.Width) / 2);
-  btnLogin.left := round((tsLogin.Width - btnLogin.Width) / 2);
-  btnRegister.left := round((tsLogin.Width - btnRegister.Width) / 2);
-  btnGuest.left := round((tsLogin.Width - btnGuest.Width) / 2);
-
-  lblID.top := round((tsLogin.Height - edtID.Height) / 2) - 114;
-  edtID.top := round((tsLogin.Height - edtID.Height) / 2) - 89;
-  lblPassword.top := round((tsLogin.Height - edtPassword.Height) / 2) - 62;
-  edtPassword.top := round((tsLogin.Height - edtPassword.Height) / 2) - 37;
-  btnLogin.top := round((tsLogin.Height - btnLogin.Height) / 2) - 10;
-  btnRegister.top := round((tsLogin.Height - btnRegister.Height) / 2) + 21;
-  btnGuest.top := round((tsLogin.Height - btnGuest.Height) / 2) + 52;
-
-  Image1.Width := tsLogin.Width;
-  Image1.Height := tsLogin.Height;
-
-  Image2.Width := tsRegister.Width;
-  Image2.Height := tsRegister.Height;
-
-  Image3.Width := tsProfile.Width;
-  Image3.Height := tsProfile.Height;
-
-  Image4.Width := tsRanking.Width;
-  Image4.Height := tsRanking.Height;
-
-  Image5.Width := tsSearch.Width;
-  Image5.Height := tsSearch.Height;
-
-  Image6.Width := tsSearch.Width;
-  Image6.Height := tsSearch.Height;
-
 end;
 
 procedure TfrmBridgeDatabase.rgSearchClick(Sender: TObject);
