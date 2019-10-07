@@ -7,7 +7,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Buttons, StdCtrls, ComCtrls, ExtCtrls, Spin, Grids, DBGrids,
   StrUtils, dmBrugDatabase_u,
-  pngimage, jpeg, Data.DB;
+  pngimage, jpeg, Data.DB, DateUtils;
 
 type
   TfrmBridgeDatabase = class(TForm)
@@ -115,6 +115,11 @@ type
     Image5: TImage;
     Image6: TImage;
     redSearch: TRichEdit;
+    Image7: TImage;
+    Image8: TImage;
+    Image9: TImage;
+    Image10: TImage;
+    Image11: TImage;
     procedure FormCreate(Sender: TObject);
     procedure btnRegisterClick(Sender: TObject);
     procedure btnRegBackClick(Sender: TObject);
@@ -131,10 +136,12 @@ type
     procedure pcTabsChange(Sender: TObject);
     procedure btnEditChangePasswdClick(Sender: TObject);
     procedure btnEditSaveClick(Sender: TObject);
+    procedure sedDateMonthChange(Sender: TObject);
+    procedure sedDateYearChange(Sender: TObject);
   private
 
     sLogedinID: string;
-    function NumToName(iNumber : integer): String;
+    function NumToName(iNumber: integer): String;
     { Private declarations }
   public
     { Public declarations }
@@ -149,29 +156,23 @@ implementation
 
 procedure TfrmBridgeDatabase.btnCreateTourClick(Sender: TObject);
 var
-  iMonth: Integer;
+  iMonth: integer;
 
 begin
-  ShowMessage(DateToStr(date));
   if Length(edtTournamentName.text) < 5 then
   begin
     ShowMessage('Tournament name too short');
     exit;
   end;
 
-  if sedNrofGames.Value < 1 then
+ if rgTourType.ItemIndex = -1 then
   begin
-    ShowMessage('Too little number of games');
+    ShowMessage('Please choose Tournament Type');
     exit;
   end;
 
-  if not((strtoint(copy(DateToStr(date), 1, 2)) < sedDateDay.Value) and
-    (iMonth <= sedDateDay.Value) and (strtoint(copy(DateToStr(date), 8, 2)) <=
-    sedDateYear.Value)) then
-  begin
-    ShowMessage('This date is too early');
-    exit;
-  end;
+
+
 end;
 
 procedure TfrmBridgeDatabase.btnEditBackClick(Sender: TObject);
@@ -193,7 +194,7 @@ end;
 
 procedure TfrmBridgeDatabase.btnEditChangePasswdClick(Sender: TObject);
 var
- sPassword, sConfirm : string;
+  sPassword, sConfirm: string;
 begin
   dmBrugDatabase_u.DataModule1.tblUsers.First;
   while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
@@ -202,40 +203,42 @@ begin
     begin
       if InputBox('Change Password', #31'Old Password:', '')
         = dmBrugDatabase_u.DataModule1.tblUsers['Password'] then
+      begin
+        sPassword := InputBox('Change Password', #31'New Password:', '');
+        sConfirm := InputBox('Change Password', #31'Confirm Password:', '');
+        if sPassword = sConfirm then
         begin
-          sPassword := InputBox('Change Password', #31'New Password:', '');
-          sConfirm :=  InputBox('Change Password', #31'Confirm Password:', '') ;
-          if sPassword = sConfirm then
-          begin
-           dmBrugDatabase_u.DataModule1.tblUsers.edit;
-           dmBrugDatabase_u.DataModule1.tblUsers['Password'] := spassword;
-           showmessage('Password changed succesfully');
-          end;
+          dmBrugDatabase_u.DataModule1.tblUsers.edit;
+          dmBrugDatabase_u.DataModule1.tblUsers['Password'] := sPassword;
+          ShowMessage('Password changed succesfully');
+        end;
 
-        end
-        else ShowMessage('Password incorrect');
+      end
+      else
+        ShowMessage('Password incorrect');
 
-        break;
+      break;
     end
     else
       dmBrugDatabase_u.DataModule1.tblUsers.Next;
   end;
-    dmBrugDatabase_u.DataModule1.tblUsers.Post;
+  dmBrugDatabase_u.DataModule1.tblUsers.Post;
 end;
 
 procedure TfrmBridgeDatabase.btnEditSaveClick(Sender: TObject);
 begin
- dmBrugDatabase_u.DataModule1.tblUsers.First;
+  dmBrugDatabase_u.DataModule1.tblUsers.First;
   while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
   begin
     if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = sLogedinID then
     begin
-      dmBrugDatabase_u.DataModule1.tblUsers.Edit;
+      dmBrugDatabase_u.DataModule1.tblUsers.edit;
       dmBrugDatabase_u.DataModule1.tblUsers['Name'] := edtEditName.text;
       dmBrugDatabase_u.DataModule1.tblUsers['Surname'] := edtEditSurname.text;
       dmBrugDatabase_u.DataModule1.tblUsers['Email'] := edtEditEmail.text;
       dmBrugDatabase_u.DataModule1.tblUsers['Phone Number'] := edtEditCell.text;
-      dmBrugDatabase_u.DataModule1.tblUsers['Country'] := NumToName(cbEditCountry.ItemIndex);
+      dmBrugDatabase_u.DataModule1.tblUsers['Country'] :=
+        NumToName(cbEditCountry.ItemIndex);
       break;
     end
     else
@@ -247,7 +250,7 @@ end;
 procedure TfrmBridgeDatabase.btnGuestClick(Sender: TObject);
 var
   sID, sPassword, sDOB, sName, sSurname, sCountry: string;
-  iRanking: Integer;
+  iRanking: integer;
 begin
   edtID.Clear;
   edtPassword.Clear;
@@ -289,7 +292,7 @@ begin
     #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Tournament amount' +
     #9 + 'Games Played' + #9 + 'Country');
 
-  dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+  dmBrugDatabase_u.DataModule1.tblPlayer.edit;
   dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
 
   dmBrugDatabase_u.DataModule1.tblPlayer.First;
@@ -315,7 +318,7 @@ begin
 
     end;
     inc(iRanking);
-    dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
+    dmBrugDatabase_u.DataModule1.tblPlayer.edit;
     dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
 
     redRanking.lines.add(IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rank']
@@ -329,8 +332,8 @@ begin
       dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
     dmBrugDatabase_u.DataModule1.tblPlayer.Next;
   end;
-  dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
-  dmBrugDatabase_u.DataModule1.tblPlayer.post;
+  dmBrugDatabase_u.DataModule1.tblPlayer.edit;
+  dmBrugDatabase_u.DataModule1.tblPlayer.Post;
 
   tsLogin.TabVisible := True;
   tsRegister.TabVisible := False;
@@ -350,7 +353,7 @@ end;
 procedure TfrmBridgeDatabase.btnLoginClick(Sender: TObject);
 var
   sID, sPassword, sDOB, sName, sSurname, sCountry: string;
-  iRanking: Integer;
+  iRanking: integer;
 begin
 
   sID := edtID.text;
@@ -433,48 +436,14 @@ begin
           'Wins' + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 +
           'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
-        dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
-        dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
+        sedDateDay.value := dayof(date) + 1;
+        sedDateMonth.value := Monthof(date);
+        sedDateYear.value := Yearof(date);
 
-        dmBrugDatabase_u.DataModule1.tblPlayer.First;
+        sedDateYear.MinValue := Yearof(date);
+        sedDateMonth.MinValue := Monthof(date);
+        sedDateDay.MinValue := dayof(date) + 1;
 
-        iRanking := 0;
-        while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
-        begin
-
-          dmBrugDatabase_u.DataModule1.tblUsers.First;
-
-          while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
-          begin
-            if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
-              = dmBrugDatabase_u.DataModule1.tblPlayer['ID'] then
-            begin
-              sName := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
-              sSurname := dmBrugDatabase_u.DataModule1.tblUsers['Surname'];
-              sCountry := dmBrugDatabase_u.DataModule1.tblUsers['Country'];
-              break;
-            end
-            else
-              dmBrugDatabase_u.DataModule1.tblUsers.Next;
-
-          end;
-          inc(iRanking);
-          dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
-          dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
-
-          redRanking.lines.add(IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer
-            ['Rank']) + #9 + sName + #9 + sSurname + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 +
-            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['TournamentAmount'])
-            + #9 + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses'] +
-            dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
-          dmBrugDatabase_u.DataModule1.tblPlayer.Next;
-        end;
-        dmBrugDatabase_u.DataModule1.tblPlayer.Edit;
-        dmBrugDatabase_u.DataModule1.tblPlayer.post;
         if dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = True then
         begin
           tsLogin.TabVisible := False;
@@ -501,13 +470,56 @@ begin
           tsSearch.TabVisible := True;
           tsCreateTournament.TabVisible := False;
           tsOngoing.TabVisible := True;
-          tsEnterTournament.TabVisible := False;
+          tsEnterTournament.TabVisible := True;
           tsMyTournament.TabVisible := False;
           tsNotices.TabVisible := True;
           tsEdit.TabVisible := False;
           tsProfile.Visible := True;
           pcTabs.ActivePage := tsProfile;
         end;
+
+        dmBrugDatabase_u.DataModule1.tblPlayer.edit;
+        dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
+
+        dmBrugDatabase_u.DataModule1.tblPlayer.First;
+
+        iRanking := 0;
+        while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
+        begin
+
+          dmBrugDatabase_u.DataModule1.tblUsers.First;
+
+          while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+          begin
+            if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
+              = dmBrugDatabase_u.DataModule1.tblPlayer['ID'] then
+            begin
+              sName := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
+              sSurname := dmBrugDatabase_u.DataModule1.tblUsers['Surname'];
+              sCountry := dmBrugDatabase_u.DataModule1.tblUsers['Country'];
+              break;
+            end
+            else
+              dmBrugDatabase_u.DataModule1.tblUsers.Next;
+
+          end;
+          inc(iRanking);
+          dmBrugDatabase_u.DataModule1.tblPlayer.edit;
+          dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
+
+          redRanking.lines.add(IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer
+            ['Rank']) + #9 + sName + #9 + sSurname + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['TournamentAmount'])
+            + #9 + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses'] +
+            dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
+          dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+        end;
+        dmBrugDatabase_u.DataModule1.tblPlayer.edit;
+        dmBrugDatabase_u.DataModule1.tblPlayer.Post;
 
         exit;
 
@@ -576,9 +588,10 @@ end;
 procedure TfrmBridgeDatabase.btnRegRegisterClick(Sender: TObject);
 var
   sCountry, sID, sIDValidate, sName, sSurname, sEmail, SCell, sPassword,
-    sconfirm: string;
+    sConfirm: string;
   bUsertype, bMale: Boolean;
-  i, k, j, l, iIdOddPositions, iIDEvenx2, iEvenDigits, iAdd, iSub: Integer;
+  i, k, j, l, iIdOddPositions, iIDEvenx2, iEvenDigits, iAdd, iSub: integer;
+  tUserfile: TextFile;
 begin
   sID := edtRegId.text;
   k := 1;
@@ -590,7 +603,7 @@ begin
   SCell := edtRegCell.text;
   sEmail := edtRegEmail.text;
   sPassword := edtRegPasswd.text;
-  sconfirm := edtRegConPasswd.text;
+  sConfirm := edtRegConPasswd.text;
 
   sCountry := NumToName(cbRegCountry.ItemIndex);
 
@@ -708,7 +721,7 @@ begin
     end;
   end;
 
-  if sPassword <> sconfirm then
+  if sPassword <> sConfirm then
   begin
     ShowMessage('Passwords does not match');
     exit;
@@ -727,16 +740,33 @@ begin
     tblUsers['Password'] := sPassword;
     tblUsers['Email'] := sEmail;
     tblUsers['Phone Number'] := SCell;
-    tblUsers.post;
+    tblUsers.Post;
 
   end;
 
   if bUsertype = False then
   begin
+    dmBrugDatabase_u.DataModule1.tblPlayer.last;
+    dmBrugDatabase_u.DataModule1.tblPlayer.insert;
     dmBrugDatabase_u.DataModule1.tblPlayer['ID'] := sID;
     dmBrugDatabase_u.DataModule1.tblPlayer['Rating'] := 600;
-    dmBrugDatabase_u.DataModule1.tblPlayer.post;
+    dmBrugDatabase_u.DataModule1.tblPlayer.Post;
 
+    AssignFile(tUserfile, sID + '.txt');
+    Rewrite(tUserfile);
+    Writeln(tUserfile, sName + ' ' + sSurname + ',' + sID);
+    Writeln(tUserfile,'');
+    Writeln(tUserfile, 'Tournaments');
+    Writeln(tUserfile,'');
+    Writeln(tUserfile, 'Opponents');
+  end
+  else
+  begin
+    AssignFile(tUserfile, sID + '.txt');
+    Rewrite(tUserfile);
+    Writeln(tUserfile, sName + ' ' + sSurname + ',' + sID);
+    Writeln(tUserfile,'');
+    Writeln(tUserfile, 'My Tournaments');
   end;
 
   tsLogin.TabVisible := True;
@@ -747,7 +777,7 @@ end;
 
 procedure TfrmBridgeDatabase.btnSearchClick(Sender: TObject);
 Var
-  iWins, iLoses, iWinrate, iRating, iRank, iTourAmount, iGamesPlayed: Integer;
+  iWins, iLoses, iWinrate, iRating, iRank, iTourAmount, iGamesPlayed: integer;
 begin
   // Search for Players
   case rgSearch.ItemIndex of
@@ -916,7 +946,7 @@ end;
 
 procedure TfrmBridgeDatabase.Button3Click(Sender: TObject);
 var
-  i: Integer;
+  i: integer;
 begin
   dmBrugDatabase_u.DataModule1.tblUsers.First;
   while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
@@ -1045,13 +1075,22 @@ begin
   Image6.Width := tsSearch.Width;
   Image6.Height := tsSearch.Height;
 
+  Image7.Width := tsSearch.Width;
+  Image7.Height := tsSearch.Height;
+
+  Image8.Width := tsSearch.Width;
+  Image8.Height := tsSearch.Height;
+
+  Image9.Width := tsSearch.Width;
+  Image9.Height := tsSearch.Height;
+
 end;
 
 function TfrmBridgeDatabase.NumToName(iNumber: integer): String;
 var
-sCountry : string;
+  sCountry: string;
 begin
-    case iNumber of
+  case iNumber of
     0:
       sCountry := 'Afghanistan';
     1:
@@ -1470,6 +1509,53 @@ begin
     2:
       lblSearchPlayer.Caption := 'Search by ID Number:';
   end;
+end;
+
+procedure TfrmBridgeDatabase.sedDateMonthChange(Sender: TObject);
+begin
+  if sedDateMonth.value in [1, 3, 5, 7, 8, 10, 12] then
+    sedDateDay.MaxValue := 31
+  else if sedDateMonth.value in [4, 6, 9, 11] then
+    sedDateDay.MaxValue := 30
+  else if (sedDateMonth.value = 2) and (sedDateYear.value MOD 4 = 0) then
+    sedDateDay.MaxValue := 29
+  else
+    sedDateDay.MaxValue := 28;
+
+    if sedDateYear.value = Yearof(date) then
+  begin
+    sedDateMonth.MinValue := Monthof(date);
+    if sedDateMonth.value = Monthof(date) then
+      sedDateDay.MinValue := dayof(date) + 1
+    else
+      sedDateDay.MinValue := 1
+  end
+  else
+  begin
+    sedDateMonth.MinValue := 1;
+    sedDateDay.MinValue := 1;
+  End;
+
+  if sedDateDay.Value > sedDateDay.MaxValue then sedDateDay.Value := sedDateDay.MaxValue;
+
+
+end;
+
+procedure TfrmBridgeDatabase.sedDateYearChange(Sender: TObject);
+begin
+  if sedDateYear.value = Yearof(date) then
+  begin
+    sedDateMonth.MinValue := Monthof(date);
+    if sedDateMonth.value = Monthof(date) then
+      sedDateDay.MinValue := dayof(date) + 1
+    else
+      sedDateDay.MinValue := 1
+  end
+  else
+  begin
+    sedDateMonth.MinValue := 1;
+    sedDateDay.MinValue := 1;
+  End;
 end;
 
 end.
