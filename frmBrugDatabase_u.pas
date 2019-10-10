@@ -7,7 +7,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Buttons, StdCtrls, ComCtrls, ExtCtrls, Spin, Grids, DBGrids,
   StrUtils, dmBrugDatabase_u,
-  pngimage, jpeg, Data.DB, DateUtils;
+  pngimage, jpeg, Data.DB, DateUtils, frmOngoing_u, frmEnterTournament_u;
 
 type
   TfrmBridgeDatabase = class(TForm)
@@ -78,7 +78,6 @@ type
     lblTournamentName: TLabel;
     edtTournamentName: TEdit;
     lblNrofGames: TLabel;
-    lblPlayerMin: TLabel;
     edtEntryfee: TLabel;
     lblTournamentDate: TLabel;
     sedNrofGames: TSpinEdit;
@@ -86,7 +85,6 @@ type
     sedDateDay: TSpinEdit;
     sedDateMonth: TSpinEdit;
     sedDateYear: TSpinEdit;
-    sedPlayerMin: TSpinEdit;
     sedPlayerMax: TSpinEdit;
     lblPlayerMax: TLabel;
     lblRatMin: TLabel;
@@ -107,7 +105,6 @@ type
     lblPrize: TLabel;
     sedPrize: TSpinEdit;
     Image1: TImage;
-    grdOngoing: TDBGrid;
     Image2: TImage;
     redRanking: TRichEdit;
     Image3: TImage;
@@ -120,6 +117,12 @@ type
     Image9: TImage;
     Image10: TImage;
     Image11: TImage;
+    Label1: TLabel;
+    Label2: TLabel;
+    redOngoing: TRichEdit;
+    lblArrow: TLabel;
+    lblArrow2: TLabel;
+    redEnterTournament: TRichEdit;
     procedure FormCreate(Sender: TObject);
     procedure btnRegisterClick(Sender: TObject);
     procedure btnRegBackClick(Sender: TObject);
@@ -138,16 +141,27 @@ type
     procedure btnEditSaveClick(Sender: TObject);
     procedure sedDateMonthChange(Sender: TObject);
     procedure sedDateYearChange(Sender: TObject);
-  private
+    procedure redOngoingClick(Sender: TObject);
+    procedure redOngoingMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
 
+    procedure redEnterTournamentMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
+    procedure redEnterTournamentClick(Sender: TObject);
+  private
+    arrTournaments: array [0 .. 100] of String;
+    arrEnterTour: array [0 .. 100] of String;
+    iTourAmount: Integer;
     sLogedinID: string;
-    function NumToName(iNumber: integer): String;
+    function NumToName(iNumber: Integer): String;
     { Private declarations }
   public
+    sCurrentTour, sEnterTour: string;
     { Public declarations }
   end;
 
 var
+
   frmBridgeDatabase: TfrmBridgeDatabase;
 
 implementation
@@ -156,8 +170,10 @@ implementation
 
 procedure TfrmBridgeDatabase.btnCreateTourClick(Sender: TObject);
 var
-  iMonth: integer;
-
+  iMonth: Integer;
+  sID, sTournamentName, sDate: string;
+  bPublic: Boolean;
+  tler: textfile;
 begin
   if Length(edtTournamentName.text) < 5 then
   begin
@@ -165,13 +181,56 @@ begin
     exit;
   end;
 
- if rgTourType.ItemIndex = -1 then
+  if rgTourType.ItemIndex = -1 then
   begin
     ShowMessage('Please choose Tournament Type');
     exit;
   end;
 
+  case rgTourType.ItemIndex of
+    0:
+      bPublic := False;
+    1:
+      bPublic := True;
 
+  end;
+
+  sDate := IntToStr(sedDateDay.value) + '/' + IntToStr(sedDateMonth.value) + '/'
+    + IntToStr(sedDateYear.value);
+  sID := IntToStr(TimeToMilliseconds(time)) + IntToStr(dayof(date)) +
+    IntToStr(monthof(date)) + IntToStr(YearOf(date));
+
+  with dmBrugDatabase_u.DataModule1 do
+  begin
+    tblTournament.last;
+    tblTournament.insert;
+    tblTournament['ID'] := sID;
+    tblTournament['TournamentName'] := edtTournamentName.text;
+    tblTournament['TourDate'] := sDate;
+    tblTournament['GameAmount'] := sedNrofGames.value;
+    tblTournament['RatingMin'] := sedRatMin.value;
+    tblTournament['RatingMax'] := sedRatMax.value;
+    tblTournament['Prizemoney'] := sedPrize.value;
+    tblTournament['PlayerMax'] := sedPlayerMax.value;
+    tblTournament['PlayerAmount'] := 0;
+    tblTournament['Owner'] := sLogedinID;
+    tblTournament['Location'] := NumToName(cbTourLocation.ItemIndex);
+    tblTournament['EntryFee'] := sedEntryFee.value;
+    tblTournament['PublicTournament'] := bPublic;
+    tblTournament.Post;
+
+  end;
+
+  AssignFile(tler, sID + '.txt');
+  Rewrite(tler);
+  Writeln(tler, sID);
+
+  Writeln(tler, 'PlayersPoints');
+
+  Writeln(tler, 'Pairings');
+  CloseFile(tler);
+ ShowMessage('Your tournament has been created!');
+ edtTournamentName.clear;
 
 end;
 
@@ -250,7 +309,7 @@ end;
 procedure TfrmBridgeDatabase.btnGuestClick(Sender: TObject);
 var
   sID, sPassword, sDOB, sName, sSurname, sCountry: string;
-  iRanking: integer;
+  iRanking: Integer;
 begin
   edtID.Clear;
   edtPassword.Clear;
@@ -352,10 +411,9 @@ end;
 
 procedure TfrmBridgeDatabase.btnLoginClick(Sender: TObject);
 var
-  sID, sPassword, sDOB, sName, sSurname, sCountry: string;
-  iRanking: integer;
+  sID, sPassword, sDOB, sName, sSurname, sCountry, sTodayDate: string;
+  iRanking: Integer;
 begin
-
   sID := edtID.text;
   sPassword := edtPassword.text;
   dmBrugDatabase_u.DataModule1.tblUsers.Active := True;
@@ -436,12 +494,27 @@ begin
           'Wins' + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 +
           'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
-        sedDateDay.value := dayof(date) + 1;
-        sedDateMonth.value := Monthof(date);
-        sedDateYear.value := Yearof(date);
+        redOngoing.Clear;
+        redOngoing.ReadOnly := True;
+        redOngoing.Paragraph.TabCount := 7;
+        redOngoing.Paragraph.Tab[1] := 100;
+        redOngoing.Paragraph.Tab[2] := 200;
+        redOngoing.Paragraph.Tab[3] := 300;
+        redOngoing.Paragraph.Tab[4] := 400;
+        redOngoing.Paragraph.Tab[5] := 500;
+        redOngoing.Paragraph.Tab[6] := 600;
 
-        sedDateYear.MinValue := Yearof(date);
-        sedDateMonth.MinValue := Monthof(date);
+        redOngoing.SelAttributes.style := [fsbold];
+        redOngoing.lines.add('Tournament Name' + #9 + 'Date' + #9 +
+          'Amount of games' + #9 + 'Minimum Rating' + #9 + 'Maximum Rating' + #9
+          + 'Prize Money' + #9 + 'Location');
+
+        sedDateDay.value := dayof(date) + 1;
+        sedDateMonth.value := monthof(date);
+        sedDateYear.value := YearOf(date);
+
+        sedDateYear.MinValue := YearOf(date);
+        sedDateMonth.MinValue := monthof(date);
         sedDateDay.MinValue := dayof(date) + 1;
 
         if dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = True then
@@ -454,7 +527,7 @@ begin
           tsCreateTournament.TabVisible := True;
           tsOngoing.TabVisible := True;
           tsEnterTournament.TabVisible := False;
-          tsMyTournament.TabVisible := False;
+          tsMyTournament.TabVisible := True;
           tsNotices.TabVisible := True;
           tsEdit.TabVisible := False;
           tsProfile.Visible := True;
@@ -476,6 +549,26 @@ begin
           tsEdit.TabVisible := False;
           tsProfile.Visible := True;
           pcTabs.ActivePage := tsProfile;
+        end;
+        sTodayDate := IntToStr(dayof(date)) + '/' + IntToStr(monthof(date)) +
+          '/' + IntToStr(YearOf(date));
+        iTourAmount := 0;
+        DataModule1.tblTournament.First;
+        while not(DataModule1.tblTournament.eof) do
+        begin
+          if sTodayDate = DataModule1.tblTournament['TourDate'] then
+          begin
+            redOngoing.lines.add(DataModule1.tblTournament['TournamentName'] +
+              #9 + DataModule1.tblTournament['TourDate'] + #9 +
+              IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+              IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+              DataModule1.tblTournament['Location']);
+            arrTournaments[iTourAmount] := DataModule1.tblTournament['ID'];
+            inc(iTourAmount);
+          end;
+          DataModule1.tblTournament.Next;
         end;
 
         dmBrugDatabase_u.DataModule1.tblPlayer.edit;
@@ -590,8 +683,8 @@ var
   sCountry, sID, sIDValidate, sName, sSurname, sEmail, SCell, sPassword,
     sConfirm: string;
   bUsertype, bMale: Boolean;
-  i, k, j, l, iIdOddPositions, iIDEvenx2, iEvenDigits, iAdd, iSub: integer;
-  tUserfile: TextFile;
+  i, k, j, l, iIdOddPositions, iIDEvenx2, iEvenDigits, iAdd, iSub: Integer;
+  tUserfile: textfile;
 begin
   sID := edtRegId.text;
   k := 1;
@@ -755,9 +848,9 @@ begin
     AssignFile(tUserfile, sID + '.txt');
     Rewrite(tUserfile);
     Writeln(tUserfile, sName + ' ' + sSurname + ',' + sID);
-    Writeln(tUserfile,'');
+    Writeln(tUserfile, '');
     Writeln(tUserfile, 'Tournaments');
-    Writeln(tUserfile,'');
+    Writeln(tUserfile, '');
     Writeln(tUserfile, 'Opponents');
   end
   else
@@ -765,7 +858,7 @@ begin
     AssignFile(tUserfile, sID + '.txt');
     Rewrite(tUserfile);
     Writeln(tUserfile, sName + ' ' + sSurname + ',' + sID);
-    Writeln(tUserfile,'');
+    Writeln(tUserfile, '');
     Writeln(tUserfile, 'My Tournaments');
   end;
 
@@ -777,7 +870,7 @@ end;
 
 procedure TfrmBridgeDatabase.btnSearchClick(Sender: TObject);
 Var
-  iWins, iLoses, iWinrate, iRating, iRank, iTourAmount, iGamesPlayed: integer;
+  iWins, iLoses, iWinrate, iRating, iRank, iTourAmount, iGamesPlayed: Integer;
 begin
   // Search for Players
   case rgSearch.ItemIndex of
@@ -946,7 +1039,7 @@ end;
 
 procedure TfrmBridgeDatabase.Button3Click(Sender: TObject);
 var
-  i: integer;
+  i: Integer;
 begin
   dmBrugDatabase_u.DataModule1.tblUsers.First;
   while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
@@ -1016,7 +1109,7 @@ begin
   tsCreateTournament.Caption := 'Create Tournament';
   tsOngoing.Caption := 'Ongoing Tournaments';
   tsEnterTournament.Caption := 'Enter Tournament';
-  tsMyTournament.Caption := 'My Tournament';
+  tsMyTournament.Caption := 'My Tournaments';
   tsNotices.Caption := 'Notices';
   tsEdit.Caption := 'Edit Profile';
 
@@ -1086,7 +1179,7 @@ begin
 
 end;
 
-function TfrmBridgeDatabase.NumToName(iNumber: integer): String;
+function TfrmBridgeDatabase.NumToName(iNumber: Integer): String;
 var
   sCountry: string;
 begin
@@ -1499,6 +1592,33 @@ begin
   tsEdit.TabVisible := False;
 end;
 
+procedure TfrmBridgeDatabase.redOngoingClick(Sender: TObject);
+var
+  X, Y: string;
+  pt: TPoint;
+begin
+  pt := Mouse.CursorPos;
+  pt := redOngoing.ScreenToClient(pt);
+
+  sCurrentTour := arrTournaments[round((pt.Y + 5) / 13) - 2];
+  if not(Length(sCurrentTour) < 6) and not(round((pt.Y + 5) / 13) - 2 > 0) then
+  begin
+    ShowMessage(sCurrentTour);
+    frmOngoing.Show;
+  end;
+   
+end;
+
+procedure TfrmBridgeDatabase.redOngoingMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+var
+  pt: TPoint;
+begin
+  pt := Mouse.CursorPos;
+  pt := redOngoing.ScreenToClient(pt);
+  lblArrow.top := round((pt.Y + 5) / 13) * 13 + 16;
+end;
+
 procedure TfrmBridgeDatabase.rgSearchClick(Sender: TObject);
 begin
   case rgSearch.ItemIndex of
@@ -1509,6 +1629,29 @@ begin
     2:
       lblSearchPlayer.Caption := 'Search by ID Number:';
   end;
+end;
+
+procedure TfrmBridgeDatabase.redEnterTournamentMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+
+var
+  pt: TPoint;
+begin
+  pt := Mouse.CursorPos;
+  pt := redEnterTournament.ScreenToClient(pt);
+  lblArrow2.top := round((pt.Y - 10) / 12) * 12 + 16;
+end;
+
+procedure TfrmBridgeDatabase.redEnterTournamentClick(Sender: TObject);
+var
+  X, Y: string;
+  pt: TPoint;
+begin
+  pt := Mouse.CursorPos;
+  pt := redEnterTournament.ScreenToClient(pt);
+  sCurrentTour := arrTournaments[round((pt.Y - 10) / 12) - 3];
+  if not(Length(sCurrentTour) < 6) then
+    frmentertournament.Show;
 end;
 
 procedure TfrmBridgeDatabase.sedDateMonthChange(Sender: TObject);
@@ -1522,10 +1665,10 @@ begin
   else
     sedDateDay.MaxValue := 28;
 
-    if sedDateYear.value = Yearof(date) then
+  if sedDateYear.value = YearOf(date) then
   begin
-    sedDateMonth.MinValue := Monthof(date);
-    if sedDateMonth.value = Monthof(date) then
+    sedDateMonth.MinValue := monthof(date);
+    if sedDateMonth.value = monthof(date) then
       sedDateDay.MinValue := dayof(date) + 1
     else
       sedDateDay.MinValue := 1
@@ -1536,17 +1679,17 @@ begin
     sedDateDay.MinValue := 1;
   End;
 
-  if sedDateDay.Value > sedDateDay.MaxValue then sedDateDay.Value := sedDateDay.MaxValue;
-
+  if sedDateDay.value > sedDateDay.MaxValue then
+    sedDateDay.value := sedDateDay.MaxValue;
 
 end;
 
 procedure TfrmBridgeDatabase.sedDateYearChange(Sender: TObject);
 begin
-  if sedDateYear.value = Yearof(date) then
+  if sedDateYear.value = YearOf(date) then
   begin
-    sedDateMonth.MinValue := Monthof(date);
-    if sedDateMonth.value = Monthof(date) then
+    sedDateMonth.MinValue := monthof(date);
+    if sedDateMonth.value = monthof(date) then
       sedDateDay.MinValue := dayof(date) + 1
     else
       sedDateDay.MinValue := 1
