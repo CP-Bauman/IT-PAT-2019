@@ -151,7 +151,7 @@ type
   private
     arrTournaments: array [0 .. 100] of String;
     arrEnterTour: array [0 .. 100] of String;
-    iTourAmount: Integer;
+    iTourAmount, iEnterTour: Integer;
     sLogedinID: string;
     function NumToName(iNumber: Integer): String;
     { Private declarations }
@@ -229,24 +229,13 @@ begin
 
   Writeln(tler, 'Pairings');
   CloseFile(tler);
- ShowMessage('Your tournament has been created!');
- edtTournamentName.clear;
+  ShowMessage('Your tournament has been created!');
+  edtTournamentName.clear;
 
 end;
 
 procedure TfrmBridgeDatabase.btnEditBackClick(Sender: TObject);
 begin
-  tsLogin.TabVisible := False;
-  tsRegister.TabVisible := False;
-  tsProfile.TabVisible := True;
-  tsRanking.TabVisible := False;
-  tsSearch.TabVisible := False;
-  tsCreateTournament.TabVisible := False;
-  tsOngoing.TabVisible := False;
-  tsEnterTournament.TabVisible := False;
-  tsMyTournament.TabVisible := False;
-  tsNotices.TabVisible := False;
-  tsEdit.TabVisible := False;
   tsProfile.Visible := True;
   pcTabs.ActivePage := tsProfile;
 end;
@@ -304,6 +293,7 @@ begin
       dmBrugDatabase_u.DataModule1.tblUsers.Next;
   end;
   dmBrugDatabase_u.DataModule1.tblUsers.Post;
+  ShowMessage('Changes have been Saved');
 end;
 
 procedure TfrmBridgeDatabase.btnGuestClick(Sender: TObject);
@@ -311,10 +301,10 @@ var
   sID, sPassword, sDOB, sName, sSurname, sCountry: string;
   iRanking: Integer;
 begin
-  edtID.Clear;
-  edtPassword.Clear;
-  edtSearch.Clear;
-  redSearch.Clear;
+  edtID.clear;
+  edtPassword.clear;
+  edtSearch.clear;
+  redSearch.clear;
   redSearch.ReadOnly := True;
   redSearch.Paragraph.TabCount := 11;
   redSearch.Paragraph.Tab[1] := 100;
@@ -333,7 +323,7 @@ begin
     'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
     'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
-  redRanking.Clear;
+  redRanking.clear;
   redRanking.ReadOnly := True;
   redRanking.Paragraph.TabCount := 10;
   redRanking.Paragraph.Tab[1] := 50;
@@ -428,9 +418,9 @@ begin
       if sPassword = dmBrugDatabase_u.DataModule1.tblUsers['Password'] then
       begin
         sLogedinID := dmBrugDatabase_u.DataModule1.tblUsers['ID Number'];
-        edtID.Clear;
-        edtPassword.Clear;
-        edtSearch.Clear;
+        edtID.clear;
+        edtPassword.clear;
+        edtSearch.clear;
         lblProfID.Caption := dmBrugDatabase_u.DataModule1.tblUsers['ID Number'];
         lblProfName.Caption := dmBrugDatabase_u.DataModule1.tblUsers['Name'];
         lblProfSurname.Caption := dmBrugDatabase_u.DataModule1.tblUsers
@@ -457,7 +447,7 @@ begin
         lblProfCell.Caption := dmBrugDatabase_u.DataModule1.tblUsers
           ['Phone Number'];
 
-        redSearch.Clear;
+        redSearch.clear;
         redSearch.ReadOnly := True;
         redSearch.Paragraph.TabCount := 11;
         redSearch.Paragraph.Tab[1] := 100;
@@ -476,7 +466,7 @@ begin
           + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
           'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
-        redRanking.Clear;
+        redRanking.clear;
         redRanking.ReadOnly := True;
         redRanking.Paragraph.TabCount := 10;
         redRanking.Paragraph.Tab[1] := 50;
@@ -494,7 +484,7 @@ begin
           'Wins' + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 +
           'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
-        redOngoing.Clear;
+        redOngoing.clear;
         redOngoing.ReadOnly := True;
         redOngoing.Paragraph.TabCount := 7;
         redOngoing.Paragraph.Tab[1] := 100;
@@ -512,6 +502,21 @@ begin
         sedDateDay.value := dayof(date) + 1;
         sedDateMonth.value := monthof(date);
         sedDateYear.value := YearOf(date);
+
+        redEnterTournament.clear;
+        redEnterTournament.ReadOnly := True;
+        redEnterTournament.Paragraph.TabCount := 7;
+        redEnterTournament.Paragraph.Tab[1] := 100;
+        redEnterTournament.Paragraph.Tab[2] := 200;
+        redEnterTournament.Paragraph.Tab[3] := 300;
+        redEnterTournament.Paragraph.Tab[4] := 400;
+        redEnterTournament.Paragraph.Tab[5] := 500;
+        redEnterTournament.Paragraph.Tab[6] := 600;
+        redEnterTournament.Paragraph.Tab[7] := 700;
+        redEnterTournament.SelAttributes.style := [fsbold];
+        redEnterTournament.lines.add('Tournament Name' + #9 + 'Date' + #9 +
+          'Amount of games' + #9 + 'Minimum Rating' + #9 + 'Maximum Rating' + #9
+          + 'Entry Fee' + #9 + 'Prize Money' + #9 + 'Location');
 
         sedDateYear.MinValue := YearOf(date);
         sedDateMonth.MinValue := monthof(date);
@@ -568,6 +573,61 @@ begin
             arrTournaments[iTourAmount] := DataModule1.tblTournament['ID'];
             inc(iTourAmount);
           end;
+          DataModule1.tblTournament.Next;
+        end;
+
+        iEnterTour := 0;
+        DataModule1.tblTournament.First;
+        while not(DataModule1.tblTournament.eof) do
+        begin
+          if YearOf(date) <
+            strtoint(copy(sTodayDate,
+            Length(DataModule1.tblTournament['TourDate']) - 3, 4)) then
+          begin
+            redEnterTournament.lines.add
+              (DataModule1.tblTournament['TournamentName'] + #9 +
+              DataModule1.tblTournament['TourDate'] + #9 +
+              IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+              IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+              DataModule1.tblTournament['Location']);
+            arrEnterTour[iTourAmount] := DataModule1.tblTournament['ID'];
+            inc(iEnterTour);
+          end
+          else if monthof(date) <
+            strtoint(copy(DataModule1.tblTournament['TourDate'],
+            pos('/', DataModule1.tblTournament['TourDate']) + 1,
+            pos('/', copy(DataModule1.tblTournament['TourDate'],
+            pos('/', DataModule1.tblTournament['TourDate']) + 1), 3) - 1)) then
+          begin
+            redEnterTournament.lines.add
+              (DataModule1.tblTournament['TournamentName'] + #9 +
+              DataModule1.tblTournament['TourDate'] + #9 +
+              IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+              IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+              DataModule1.tblTournament['Location']);
+            arrEnterTour[iTourAmount] := DataModule1.tblTournament['ID'];
+            inc(iEnterTour);
+          end
+          else if dayof(date) <
+            strtoint(copy(DataModule1.tblTournament['TourDate'], 1,
+            pos('/', DataModule1.tblTournament['TourDate']) - 1)) then
+          begin
+            redEnterTournament.lines.add
+              (DataModule1.tblTournament['TournamentName'] + #9 +
+              DataModule1.tblTournament['TourDate'] + #9 +
+              IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+              IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+              DataModule1.tblTournament['Location']);
+            arrEnterTour[iTourAmount] := DataModule1.tblTournament['ID'];
+            inc(iEnterTour);
+          end;
+
           DataModule1.tblTournament.Next;
         end;
 
@@ -634,13 +694,13 @@ end;
 
 procedure TfrmBridgeDatabase.btnRegBackClick(Sender: TObject);
 begin
-  edtRegId.Clear;
-  edtRegName.Clear;
-  edtRegSurname.Clear;
-  edtRegEmail.Clear;
-  edtRegCell.Clear;
-  edtRegPasswd.Clear;
-  edtRegConPasswd.Clear;
+  edtRegId.clear;
+  edtRegName.clear;
+  edtRegSurname.clear;
+  edtRegEmail.clear;
+  edtRegCell.clear;
+  edtRegPasswd.clear;
+  edtRegConPasswd.clear;
   cbRegCountry.ItemIndex := 166;
   rgRegType.ItemIndex := -1;
 
@@ -877,7 +937,7 @@ begin
     0:
       begin
         dmBrugDatabase_u.DataModule1.tblUsers.First;
-        redSearch.Clear;
+        redSearch.clear;
         redSearch.SelAttributes.style := [fsbold];
         redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
           + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
@@ -885,7 +945,7 @@ begin
 
         while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
         begin
-          if (Pos(UpperCase(edtSearch.text),
+          if (pos(UpperCase(edtSearch.text),
             UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Name'])) > 0) and
             (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
           begin
@@ -929,7 +989,7 @@ begin
     1:
       begin
         dmBrugDatabase_u.DataModule1.tblUsers.First;
-        redSearch.Clear;
+        redSearch.clear;
         redSearch.SelAttributes.style := [fsbold];
         redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
           + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
@@ -937,7 +997,7 @@ begin
 
         while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
         begin
-          if (Pos(UpperCase(edtSearch.text),
+          if (pos(UpperCase(edtSearch.text),
             UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Surname'])) > 0)
             and (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False)
           then
@@ -981,7 +1041,7 @@ begin
     2:
       begin
         dmBrugDatabase_u.DataModule1.tblUsers.First;
-        redSearch.Clear;
+        redSearch.clear;
         redSearch.SelAttributes.style := [fsbold];
         redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
           + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
@@ -989,7 +1049,7 @@ begin
 
         while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
         begin
-          if (Pos(edtSearch.text, dmBrugDatabase_u.DataModule1.tblUsers
+          if (pos(edtSearch.text, dmBrugDatabase_u.DataModule1.tblUsers
             ['ID Number']) > 0) and
             (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
           begin
@@ -1606,7 +1666,7 @@ begin
     ShowMessage(sCurrentTour);
     frmOngoing.Show;
   end;
-   
+
 end;
 
 procedure TfrmBridgeDatabase.redOngoingMouseMove(Sender: TObject;
@@ -1639,19 +1699,44 @@ var
 begin
   pt := Mouse.CursorPos;
   pt := redEnterTournament.ScreenToClient(pt);
-  lblArrow2.top := round((pt.Y - 10) / 12) * 12 + 16;
+  lblArrow2.top := round((pt.Y - 10) / 13) * 13 + 10;
 end;
 
 procedure TfrmBridgeDatabase.redEnterTournamentClick(Sender: TObject);
 var
   X, Y: string;
   pt: TPoint;
+  tler: textfile;
+  slyn: string;
 begin
   pt := Mouse.CursorPos;
   pt := redEnterTournament.ScreenToClient(pt);
-  sCurrentTour := arrTournaments[round((pt.Y - 10) / 12) - 3];
-  if not(Length(sCurrentTour) < 6) then
-    frmentertournament.Show;
+  sentertour := arrEnterTour[round((pt.Y - 10) / 13) - 2];
+  if FileExists(sentertour + '.txt') then
+  begin
+    AssignFile(tler, sentertour + '.txt');
+    DataModule1.tblusers.first;
+    while not(eof(tler)) do
+    begin
+      Readln(tler, slyn);
+      if slyn = 'PlayersPoints' then
+      begin
+        while not(DataModule1.tblUsers.eof) do
+        begin
+          if DataModule1.tblUsers['ID Number'] = sLogedinID
+          then
+          begin
+            Writeln(tler, DataModule1.tblUsers['ID Number'] + ',0' );
+            break;
+          end;
+          DataModule1.tblUsers.next;
+        end;
+      end;
+
+    end;
+    ShowMessage('You are now entered in the tournament');
+  end;
+
 end;
 
 procedure TfrmBridgeDatabase.sedDateMonthChange(Sender: TObject);
