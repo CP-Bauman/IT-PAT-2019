@@ -118,11 +118,12 @@ type
     Image10: TImage;
     Image11: TImage;
     Label1: TLabel;
-    Label2: TLabel;
     redOngoing: TRichEdit;
     lblArrow: TLabel;
     lblArrow2: TLabel;
     redEnterTournament: TRichEdit;
+    ComboBox1: TComboBox;
+    Panel1: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure btnRegisterClick(Sender: TObject);
     procedure btnRegBackClick(Sender: TObject);
@@ -223,7 +224,6 @@ begin
 
   AssignFile(tler, sID + '.txt');
   Rewrite(tler);
-  Writeln(tler, sID);
 
   Writeln(tler, 'PlayersPoints');
 
@@ -592,7 +592,7 @@ begin
               IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
               IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
               DataModule1.tblTournament['Location']);
-            arrEnterTour[iTourAmount] := DataModule1.tblTournament['ID'];
+            arrEnterTour[iEnterTour] := DataModule1.tblTournament['ID'];
             inc(iEnterTour);
           end
           else if monthof(date) <
@@ -609,7 +609,7 @@ begin
               IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
               IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
               DataModule1.tblTournament['Location']);
-            arrEnterTour[iTourAmount] := DataModule1.tblTournament['ID'];
+            arrEnterTour[iEnterTour] := DataModule1.tblTournament['ID'];
             inc(iEnterTour);
           end
           else if dayof(date) <
@@ -624,7 +624,7 @@ begin
               IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
               IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
               DataModule1.tblTournament['Location']);
-            arrEnterTour[iTourAmount] := DataModule1.tblTournament['ID'];
+            arrEnterTour[iEnterTour] := DataModule1.tblTournament['ID'];
             inc(iEnterTour);
           end;
 
@@ -1661,9 +1661,9 @@ begin
   pt := redOngoing.ScreenToClient(pt);
 
   sCurrentTour := arrTournaments[round((pt.Y + 5) / 13) - 2];
-  if not(Length(sCurrentTour) < 6) and not(round((pt.Y + 5) / 13) - 2 > 0) then
+  if not(Length(sCurrentTour) < 6) and not(round((pt.Y + 5) / 13) - 2 < 0) and
+    not((round((pt.Y + 5) / 13) - 2) > iTourAmount) then
   begin
-    ShowMessage(sCurrentTour);
     frmOngoing.Show;
   end;
 
@@ -1704,37 +1704,86 @@ end;
 
 procedure TfrmBridgeDatabase.redEnterTournamentClick(Sender: TObject);
 var
-  X, Y: string;
   pt: TPoint;
   tler: textfile;
-  slyn: string;
+  slyn, sTemp: string;
+  iTal, i, ital2, k, X, Y, iRat1, iRat2: Integer;
+  arrRanking: array [0 .. 1000] of string;
+  arrPairings: array [0 .. 1000] of string;
+
 begin
+
   pt := Mouse.CursorPos;
   pt := redEnterTournament.ScreenToClient(pt);
-  sentertour := arrEnterTour[round((pt.Y - 10) / 13) - 2];
-  if FileExists(sentertour + '.txt') then
+  sEnterTour := arrEnterTour[round((pt.Y - 10) / 13) - 1];
+  iTal := 0;
+  if FileExists(sEnterTour + '.txt') then
   begin
-    AssignFile(tler, sentertour + '.txt');
-    DataModule1.tblusers.first;
-    while not(eof(tler)) do
+    AssignFile(tler, sEnterTour + '.txt');
+    reset(tler);
+    while not eof(tler) do
     begin
-      Readln(tler, slyn);
-      if slyn = 'PlayersPoints' then
+      readln(tler, slyn);
+      if slyn = 'PlayersRanking' then
       begin
-        while not(DataModule1.tblUsers.eof) do
+        repeat
+          readln(tler, slyn);
+          arrRanking[iTal] := slyn;
+          inc(iTal)
+        until (slyn = 'Pairings');
+      end;
+      if slyn = 'Pairings' then
+      begin
+        repeat
+          readln(tler, slyn);
+          arrPairings[ital2] := slyn;
+          inc(iTal)
+        until (eof(tler));
+      end;
+    end;
+
+    arrRanking[iTal] := sLogedinID + ',0';
+
+    for X := 0 to iTal - 1 do
+      for Y := X to iTal do
+      begin
+        DataModule1.tblUsers.First;
+        while not DataModule1.tblUsers.eof do
         begin
-          if DataModule1.tblUsers['ID Number'] = sLogedinID
-          then
-          begin
-            Writeln(tler, DataModule1.tblUsers['ID Number'] + ',0' );
-            break;
-          end;
-          DataModule1.tblUsers.next;
+          if DataModule1.tblUsers['ID Number'] = copy(arrRanking[X], 1, 10) then
+            iRat1 := DataModule1.tblUsers['Rating']
+          else
+            DataModule1.tblUsers.Next;
         end;
+        DataModule1.tblUsers.First;
+        while not DataModule1.tblUsers.eof do
+        begin
+          if DataModule1.tblUsers['ID Number'] = copy(arrRanking[Y], 1, 10) then
+            iRat2 := DataModule1.tblUsers['Rating']
+          else
+            DataModule1.tblUsers.Next;
+        end;
+
+        if iRat2 > iRat1 then
+        begin
+          sTemp := arrRanking[X];
+          arrRanking[X] := arrRanking[Y];
+          arrRanking[Y] := sTemp;
+        end;
+
       end;
 
+    Rewrite(tler);
+    Writeln(tler, 'PlayerRanking');
+    for i := 0 to iTal do
+    begin
+      slyn := arrRanking[i];
+      Writeln(tler, slyn);
+
     end;
-    ShowMessage('You are now entered in the tournament');
+
+    ShowMessage('You are entered in the tournament');
+    CloseFile(tler);
   end;
 
 end;
