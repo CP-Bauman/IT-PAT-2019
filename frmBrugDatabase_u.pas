@@ -124,6 +124,15 @@ type
     redEnterTournament: TRichEdit;
     cbMyTournaments: TComboBox;
     pnlMyTournament: TPanel;
+    lblTourName: TLabel;
+    lblPlayAmount: TLabel;
+    lblPlayDate: TLabel;
+    Label8: TLabel;
+    redMyTournament: TRichEdit;
+    redPairings: TRichEdit;
+    btnStartTournament: TButton;
+    btnNextRound: TButton;
+    btnPreviousRound: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnRegisterClick(Sender: TObject);
     procedure btnRegBackClick(Sender: TObject);
@@ -149,10 +158,14 @@ type
     procedure redEnterTournamentMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
     procedure redEnterTournamentClick(Sender: TObject);
+    procedure cbMyTournamentsChange(Sender: TObject);
+    procedure btnStartTournamentClick(Sender: TObject);
   private
     arrTournaments: array [0 .. 100] of String;
     arrEnterTour: array [0 .. 100] of String;
-    iTourAmount, iEnterTour: Integer;
+    arrMyTournaments: array [0 .. 100] of string;
+    // arrpairs: array [0 .. 100] of string;
+    iTourAmount, iEnterTour, iMytour: Integer;
     sLogedinID: string;
     function NumToName(iNumber: Integer): String;
     { Private declarations }
@@ -645,6 +658,21 @@ begin
             DataModule1.tblTournament.Next;
           end;
         end;
+        DataModule1.tblTournament.First;
+        iMytour := 0;
+
+        while not DataModule1.tblTournament.eof do
+        begin
+          if DataModule1.tblTournament['Owner'] = sLogedinID then
+          begin
+            arrMyTournaments[iMytour] := DataModule1.tblTournament['ID'];
+            cbMyTournaments.Items.add(DataModule1.tblTournament
+              ['TournamentName']);
+
+          end;
+          inc(iMytour);
+          DataModule1.tblTournament.Next;
+        end;
 
         dmBrugDatabase_u.DataModule1.tblPlayer.edit;
         dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
@@ -1112,6 +1140,37 @@ begin
   // end;
 end;
 
+procedure TfrmBridgeDatabase.btnStartTournamentClick(Sender: TObject);
+var
+  tfile: textfile;
+  sline: string;
+  ital, ital2: Integer;
+  arrrank: array [0 .. 100] of string;
+  arrPair: array [0 .. 100] of String;
+begin
+  AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
+  reset(tfile);
+  ital := 0;
+  readln(tfile, sline);
+  readln(tfile, sline);
+  while not(sline = 'Pairings') do
+  begin
+
+    arrrank[ital] := copy(sline, 1, 13);
+    inc(ital);
+    readln(tfile, sline)
+  end;
+  ital2 := 0;
+  while ital2 < (ital / 2) do
+  begin
+   arrpair[ital2] := copy(arrRank[ital2],1,13) + ',' + copy(arrrank[ital2 + trunc(ital/2)],1,13);
+   
+   inc(ital2) ;
+  end;
+
+  redPairings.lines.Add(arrpair[0]);
+end;
+
 procedure TfrmBridgeDatabase.Button3Click(Sender: TObject);
 var
   i: Integer;
@@ -1162,6 +1221,78 @@ begin
   pcTabs.ActivePage := tsLogin;
 end;
 
+procedure TfrmBridgeDatabase.cbMyTournamentsChange(Sender: TObject);
+var
+  tler: textfile;
+  slyn: string;
+  iRank, ital: Integer;
+
+begin
+  redMyTournament.clear;
+  redMyTournament.Paragraph.TabCount := 2;
+  redMyTournament.Paragraph.Tab[0] := 50;
+  redMyTournament.Paragraph.Tab[1] := 150;
+  redMyTournament.SelAttributes.style := [fsbold];
+  redMyTournament.lines.add('Rank' + #9 + 'Name' + #9 + 'Points');
+
+  redPairings.clear;
+  redPairings.Paragraph.TabCount := 4;
+  redPairings.Paragraph.Tab[0] := 30;
+  redPairings.Paragraph.Tab[1] := 100;
+  redPairings.Paragraph.Tab[2] := 20;
+  redPairings.Paragraph.Tab[3] := 100;
+  redPairings.SelAttributes.style := [fsbold];
+  redPairings.lines.add('Table' + #9 + 'Side A' + #9 + 'Results' + #9 +
+    'Side B');
+
+  pnlMyTournament.Visible := True;
+  DataModule1.tblTournament.First;
+  while not DataModule1.tblTournament.eof do
+  begin
+    if arrMyTournaments[cbMyTournaments.ItemIndex] = DataModule1.tblTournament
+      ['ID'] then
+    begin
+      lblTourName.Caption := 'Tournament Name:  ' + DataModule1.tblTournament
+        ['TournamentName'];
+
+      lblPlayAmount.Caption := 'Amount of Players:  ' +
+        IntToStr(DataModule1.tblTournament['PlayerAmount']);
+      lblPlayDate.Caption := 'Tournament Date:  ' + DataModule1.tblTournament
+        ['TourDate'];
+      Label8.Caption := 'Amount of Games:' +
+        IntToStr(DataModule1.tblTournament['GameAmount']);
+    end;
+
+    DataModule1.tblTournament.Next;
+
+  end;
+
+  AssignFile(tler, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
+  reset(tler);
+  DataModule1.tblUsers.First;
+  readln(tler, slyn);
+  readln(tler, slyn);
+  iRank := 0;
+  while not(slyn = 'Pairings') do
+  begin
+    inc(iRank);
+    while not DataModule1.tblUsers.eof do
+    begin
+      if DataModule1.tblUsers['ID Number'] = copy(slyn, 1, 13) then
+      begin
+        redMyTournament.lines.add(IntToStr(iRank) + #9 + DataModule1.tblUsers
+          ['Name'] + ' ' + DataModule1.tblUsers['surname'] + #9 + copy(slyn,
+          pos(',', slyn) + 1, Length(slyn) - pos(',', slyn)));
+        break;
+      end;
+
+      DataModule1.tblUsers.Next;
+    end;
+    readln(tler, slyn);
+  end;
+
+end;
+
 procedure TfrmBridgeDatabase.FormCreate(Sender: TObject);
 
 begin
@@ -1204,6 +1335,7 @@ begin
 
   rgSearch.ItemIndex := 0;
   lblSearchPlayer.Caption := 'Search by Name:';
+
 end;
 
 procedure TfrmBridgeDatabase.FormResize(Sender: TObject);
@@ -1728,7 +1860,7 @@ var
   pt: TPoint;
   tler: textfile;
   slyn, sTemp: string;
-  iTal, i, k, X, Y, iRat1, iRat2: Integer;
+  ital, i, k, X, Y, iRat1, iRat2: Integer;
   arrRanking: array [0 .. 1000] of string;
 begin
 
@@ -1756,17 +1888,17 @@ begin
     begin
       AssignFile(tler, sEnterTour + '.txt');
       reset(tler);
-      iTal := 0;
+      ital := 0;
       readln(tler, slyn);
       readln(tler, slyn);
       while not(slyn = 'Pairings') do
       begin
-        arrRanking[iTal] := slyn;
-        inc(iTal);
+        arrRanking[ital] := slyn;
+        inc(ital);
         readln(tler, slyn);
       end;
 
-      for k := 0 to iTal - 1 do
+      for k := 0 to ital - 1 do
       begin
         if sLogedinID = copy(arrRanking[k], 1, 13) then
         begin
@@ -1777,10 +1909,10 @@ begin
 
       end;
 
-      arrRanking[iTal] := sLogedinID + ',0';
+      arrRanking[ital] := sLogedinID + ',0';
 
-      for X := 0 to iTal - 1 do
-        for Y := X to iTal do
+      for X := 0 to ital - 1 do
+        for Y := X to ital do
         begin
           DataModule1.tblUsers.First;
           while not DataModule1.tblUsers.eof do
@@ -1818,7 +1950,7 @@ begin
 
       Rewrite(tler);
       Writeln(tler, 'PlayerRanking');
-      for i := 0 to iTal do
+      for i := 0 to ital do
       begin
         slyn := arrRanking[i];
         Writeln(tler, slyn);
