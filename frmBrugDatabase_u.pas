@@ -7,7 +7,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Buttons, StdCtrls, ComCtrls, ExtCtrls, Spin, Grids, DBGrids,
   StrUtils, dmBrugDatabase_u,
-  pngimage, jpeg, Data.DB, DateUtils, frmOngoing_u;
+  pngimage, jpeg, Data.DB, DateUtils, frmOngoing_u, math;
 
 type
   TfrmBridgeDatabase = class(TForm)
@@ -1186,41 +1186,72 @@ begin
     end;
 
   end;
-   /////////Rating Calculator
-   ///
+   /////////Rating Calculator///Elo Rating sytem/////
    DataModule1.tblPlayer.First;
   while not(DataModule1.tblPlayer.eof) do
   begin
-    if dmBrugDatabase_u.DataModule1.tblPlayer['ID'] = copy
+    if DataModule1.tblPlayer['ID'] = copy
       (arrpair[iGames], 1, 13) then
     begin
-
+      OldRating1 := DataModule1.tblPlayer['Rating'];
       break;
     end;
-    dmBrugDatabase_u.DataModule1.tblPlayer.Next;
+    DataModule1.tblPlayer.Next;
   end;
 
   DataModule1.tblPlayer.First;
   while not(DataModule1.tblPlayer.eof) do
   begin
-    if dmBrugDatabase_u.DataModule1.tblPlayer['ID'] = copy
+    if DataModule1.tblPlayer['ID'] = copy
       (arrpair[iGames], 15, 13) then
     begin
-
+      OldRating2 := DataModule1.tblPlayer['Rating'];
       break;
     end
     else
     begin
-
+      OldRating2 := OldRating1;
       break;
     end;
-    dmBrugDatabase_u.DataModule1.tblUsers.Next;
+    DataModule1.tblUsers.Next;
   end;
 
+  A1 := power(10,(OldRating1/400));
+  A2 := power(10,(OldRating2/400));
+
+  B1 := A1/(A1+A2);
+  B2 := A2/(A1+A2);
+
+  NewRating1 := oldrating1 + (36*(1-B1));
+  NewRating2 := OldRating2 + (36*(0-B2));
 
 
+    DataModule1.tblPlayer.First;
+  while not(DataModule1.tblPlayer.eof) do
+  begin
+    if DataModule1.tblPlayer['ID'] = copy
+      (arrpair[iGames], 1, 13) then
+    begin
+      DataModule1.tblPlayer['Rating'] := NewRating1;
+      DataModule1.tblPlayer['Wins'] := DataModule1.tblPlayer['Wins'] + 1;
+      break;
+    end;
+    DataModule1.tblPlayer.Next;
+  end;
 
+  DataModule1.tblPlayer.First;
+  while not(DataModule1.tblPlayer.eof) do
+  begin
+    if DataModule1.tblPlayer['ID'] = copy
+      (arrpair[iGames], 15, 13) then
+    begin
+      DataModule1.tblPlayer['Rating'] := NewRating2;
+      DataModule1.tblPlayer['Loses'] := DataModule1.tblPlayer['Loses'] + 1;
+      break;
+    end
+  end;
 
+//////////////////////////////////////
 
   AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
     append(tfile);
