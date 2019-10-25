@@ -164,6 +164,7 @@ type
     procedure cbMyTournamentsChange(Sender: TObject);
     procedure btnStartTournamentClick(Sender: TObject);
     procedure btnSideAClick(Sender: TObject);
+    procedure btnSideBClick(Sender: TObject);
   private
     arrTournaments: array [0 .. 100] of String;
     arrEnterTour: array [0 .. 100] of String;
@@ -215,10 +216,10 @@ begin
 
   end;
 
-  sDate := IntToStr(sedDateDay.value) + '/' + IntToStr(sedDateMonth.value)
-    + '/' + IntToStr(sedDateYear.value);
-  sID := IntToStr(TimeToMilliseconds(time)) + IntToStr(dayof(date)) + IntToStr
-    (monthof(date)) + IntToStr(YearOf(date));
+  sDate := IntToStr(sedDateDay.value) + '/' + IntToStr(sedDateMonth.value) + '/'
+    + IntToStr(sedDateYear.value);
+  sID := IntToStr(TimeToMilliseconds(time)) + IntToStr(dayof(date)) +
+    IntToStr(monthof(date)) + IntToStr(YearOf(date));
 
   with dmBrugDatabase_u.DataModule1 do
   begin
@@ -315,8 +316,8 @@ begin
       dmBrugDatabase_u.DataModule1.tblUsers['Surname'] := edtEditSurname.text;
       dmBrugDatabase_u.DataModule1.tblUsers['Email'] := edtEditEmail.text;
       dmBrugDatabase_u.DataModule1.tblUsers['Phone Number'] := edtEditCell.text;
-      dmBrugDatabase_u.DataModule1.tblUsers['Country'] := NumToName
-        (cbEditCountry.ItemIndex);
+      dmBrugDatabase_u.DataModule1.tblUsers['Country'] :=
+        NumToName(cbEditCountry.ItemIndex);
       break;
     end
     else
@@ -349,9 +350,9 @@ begin
   redSearch.Paragraph.Tab[10] := 1000;
 
   redSearch.SelAttributes.style := [fsbold];
-  redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins' +
-      #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-      'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+  redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins' + #9 +
+    'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+    'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
   redRanking.clear;
   redRanking.ReadOnly := True;
@@ -367,10 +368,9 @@ begin
   redRanking.Paragraph.Tab[9] := 1250;
 
   redRanking.SelAttributes.style := [fsbold];
-  redRanking.lines.add
-    ('Ranking' + #9 + 'Name' + #9 + 'Surname' + #9 + 'Wins' + #9 + 'Loses' +
-      #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Tournament amount' + #9 +
-      'Games Played' + #9 + 'Country');
+  redRanking.lines.add('Ranking' + #9 + 'Name' + #9 + 'Surname' + #9 + 'Wins' +
+    #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Tournament amount' +
+    #9 + 'Games Played' + #9 + 'Country');
 
   dmBrugDatabase_u.DataModule1.tblPlayer.edit;
   dmBrugDatabase_u.DataModule1.tblPlayer.Sort := 'Rating DESC';
@@ -401,16 +401,15 @@ begin
     dmBrugDatabase_u.DataModule1.tblPlayer.edit;
     dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
 
-    redRanking.lines.add
-      (IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rank'])
-        + #9 + sName + #9 + sSurname + #9 + IntToStr
-        (dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + IntToStr
-        (dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 + IntToStr
-        (dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 + IntToStr
-        (dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 + IntToStr
-        (dmBrugDatabase_u.DataModule1.tblPlayer['TournamentAmount'])
-        + #9 + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']
-          + dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
+    redRanking.lines.add(IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rank']
+      ) + #9 + sName + #9 + sSurname + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 +
+      IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['TournamentAmount']) + #9
+      + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses'] +
+      dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
     dmBrugDatabase_u.DataModule1.tblPlayer.Next;
   end;
   dmBrugDatabase_u.DataModule1.tblPlayer.edit;
@@ -470,8 +469,8 @@ begin
         Delete(sDOB, 7, 2);
         sDOB := sDOB + copy(sDOB, 3, 2);
         Delete(sDOB, 3, 2);
-        sDOB := copy(sDOB, 1, 2) + '/' + copy(sDOB, 3, 2) + '/' + copy(sDOB, 5,
-          2);
+        sDOB := copy(sDOB, 1, 2) + '/' + copy(sDOB, 3, 2) + '/' +
+          copy(sDOB, 5, 2);
         lblProfDOB.Caption := sDOB;
         lblProfCountry.Caption := dmBrugDatabase_u.DataModule1.tblUsers
           ['Country'];
@@ -494,10 +493,9 @@ begin
         redSearch.Paragraph.Tab[10] := 1000;
 
         redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add
-          ('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins' + #9 +
-            'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-            'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
+          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
         redRanking.clear;
         redRanking.ReadOnly := True;
@@ -513,11 +511,9 @@ begin
         redRanking.Paragraph.Tab[9] := 1250;
 
         redRanking.SelAttributes.style := [fsbold];
-        redRanking.lines.add
-          ('Ranking' + #9 + 'Name' + #9 + 'Surname' + #9 + 'Wins' + #9 +
-            'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 +
-            'Tournament amount' + #9 + 'Games Played' + #9 +
-            'Country');
+        redRanking.lines.add('Ranking' + #9 + 'Name' + #9 + 'Surname' + #9 +
+          'Wins' + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
         redOngoing.clear;
         redOngoing.ReadOnly := True;
@@ -531,8 +527,8 @@ begin
 
         redOngoing.SelAttributes.style := [fsbold];
         redOngoing.lines.add('Tournament Name' + #9 + 'Date' + #9 +
-            'Amount of games' + #9 + 'Minimum Rating' + #9 + 'Maximum Rating' +
-            #9 + 'Prize Money' + #9 + 'Location');
+          'Amount of games' + #9 + 'Minimum Rating' + #9 + 'Maximum Rating' + #9
+          + 'Prize Money' + #9 + 'Location');
 
         sedDateDay.value := dayof(date) + 1;
         sedDateMonth.value := monthof(date);
@@ -549,10 +545,9 @@ begin
         redEnterTournament.Paragraph.Tab[6] := 600;
         redEnterTournament.Paragraph.Tab[7] := 700;
         redEnterTournament.SelAttributes.style := [fsbold];
-        redEnterTournament.lines.add
-          ('Tournament Name' + #9 + 'Date' + #9 + 'Amount of games' + #9 +
-            'Minimum Rating' + #9 + 'Maximum Rating' + #9 + 'Entry Fee' + #9 +
-            'Prize Money' + #9 + 'Location');
+        redEnterTournament.lines.add('Tournament Name' + #9 + 'Date' + #9 +
+          'Amount of games' + #9 + 'Minimum Rating' + #9 + 'Maximum Rating' + #9
+          + 'Entry Fee' + #9 + 'Prize Money' + #9 + 'Location');
 
         sedDateYear.MinValue := YearOf(date);
         sedDateMonth.MinValue := monthof(date);
@@ -591,22 +586,21 @@ begin
           tsProfile.Visible := True;
           pcTabs.ActivePage := tsProfile;
         end;
-        sTodayDate := IntToStr(dayof(date)) + '/' + IntToStr(monthof(date))
-          + '/' + IntToStr(YearOf(date));
+        sTodayDate := IntToStr(dayof(date)) + '/' + IntToStr(monthof(date)) +
+          '/' + IntToStr(YearOf(date));
         iTourAmount := 0;
         DataModule1.tblTournament.First;
         while not(DataModule1.tblTournament.eof) do
         begin
           if sTodayDate = DataModule1.tblTournament['TourDate'] then
           begin
-            redOngoing.lines.add
-              (DataModule1.tblTournament['TournamentName']
-                + #9 + DataModule1.tblTournament['TourDate'] + #9 + IntToStr
-                (DataModule1.tblTournament['GameAmount']) + #9 + IntToStr
-                (DataModule1.tblTournament['RatingMin']) + #9 + IntToStr
-                (DataModule1.tblTournament['RatingMax']) + #9 + 'R' + IntToStr
-                (DataModule1.tblTournament['PrizeMoney'])
-                + #9 + DataModule1.tblTournament['Location']);
+            redOngoing.lines.add(DataModule1.tblTournament['TournamentName'] +
+              #9 + DataModule1.tblTournament['TourDate'] + #9 +
+              IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+              IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+              IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+              DataModule1.tblTournament['Location']);
             arrTournaments[iTourAmount] := DataModule1.tblTournament['ID'];
             inc(iTourAmount);
           end;
@@ -619,52 +613,51 @@ begin
         begin
           if DataModule1.tblTournament['PublicTournament'] = True then
           begin
-            if YearOf(date) < strtoint(copy(sTodayDate,
-                Length(DataModule1.tblTournament['TourDate']) - 3, 4)) then
+            if YearOf(date) <
+              strtoint(copy(sTodayDate,
+              Length(DataModule1.tblTournament['TourDate']) - 3, 4)) then
             begin
               redEnterTournament.lines.add
-                (DataModule1.tblTournament['TournamentName']
-                  + #9 + DataModule1.tblTournament['TourDate']
-                  + #9 + IntToStr(DataModule1.tblTournament['GameAmount'])
-                  + #9 + IntToStr(DataModule1.tblTournament['RatingMin'])
-                  + #9 + IntToStr(DataModule1.tblTournament['RatingMax'])
-                  + #9 + 'R' + IntToStr
-                  (DataModule1.tblTournament['PrizeMoney'])
-                  + #9 + DataModule1.tblTournament['Location']);
+                (DataModule1.tblTournament['TournamentName'] + #9 +
+                DataModule1.tblTournament['TourDate'] + #9 +
+                IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+                IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+                IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+                IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+                DataModule1.tblTournament['Location']);
               arrEnterTour[iEnterTour] := DataModule1.tblTournament['ID'];
               inc(iEnterTour);
             end
-            else if monthof(date) < strtoint
-              (copy(DataModule1.tblTournament['TourDate'],
-                pos('/', DataModule1.tblTournament['TourDate']) + 1,
-                pos('/', copy(DataModule1.tblTournament['TourDate'], pos('/',
-                      DataModule1.tblTournament['TourDate']) + 1), 3) - 1)) then
+            else if monthof(date) <
+              strtoint(copy(DataModule1.tblTournament['TourDate'],
+              pos('/', DataModule1.tblTournament['TourDate']) + 1,
+              pos('/', copy(DataModule1.tblTournament['TourDate'],
+              pos('/', DataModule1.tblTournament['TourDate']) + 1), 3) - 1))
+            then
             begin
               redEnterTournament.lines.add
-                (DataModule1.tblTournament['TournamentName']
-                  + #9 + DataModule1.tblTournament['TourDate']
-                  + #9 + IntToStr(DataModule1.tblTournament['GameAmount'])
-                  + #9 + IntToStr(DataModule1.tblTournament['RatingMin'])
-                  + #9 + IntToStr(DataModule1.tblTournament['RatingMax'])
-                  + #9 + 'R' + IntToStr
-                  (DataModule1.tblTournament['PrizeMoney'])
-                  + #9 + DataModule1.tblTournament['Location']);
+                (DataModule1.tblTournament['TournamentName'] + #9 +
+                DataModule1.tblTournament['TourDate'] + #9 +
+                IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+                IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+                IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+                IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+                DataModule1.tblTournament['Location']);
               arrEnterTour[iEnterTour] := DataModule1.tblTournament['ID'];
               inc(iEnterTour);
             end
-            else if dayof(date) < strtoint
-              (copy(DataModule1.tblTournament['TourDate'], 1,
-                pos('/', DataModule1.tblTournament['TourDate']) - 1)) then
+            else if dayof(date) <
+              strtoint(copy(DataModule1.tblTournament['TourDate'], 1,
+              pos('/', DataModule1.tblTournament['TourDate']) - 1)) then
             begin
               redEnterTournament.lines.add
-                (DataModule1.tblTournament['TournamentName']
-                  + #9 + DataModule1.tblTournament['TourDate']
-                  + #9 + IntToStr(DataModule1.tblTournament['GameAmount'])
-                  + #9 + IntToStr(DataModule1.tblTournament['RatingMin'])
-                  + #9 + IntToStr(DataModule1.tblTournament['RatingMax'])
-                  + #9 + 'R' + IntToStr
-                  (DataModule1.tblTournament['PrizeMoney'])
-                  + #9 + DataModule1.tblTournament['Location']);
+                (DataModule1.tblTournament['TournamentName'] + #9 +
+                DataModule1.tblTournament['TourDate'] + #9 +
+                IntToStr(DataModule1.tblTournament['GameAmount']) + #9 +
+                IntToStr(DataModule1.tblTournament['RatingMin']) + #9 +
+                IntToStr(DataModule1.tblTournament['RatingMax']) + #9 + 'R' +
+                IntToStr(DataModule1.tblTournament['PrizeMoney']) + #9 +
+                DataModule1.tblTournament['Location']);
               arrEnterTour[iEnterTour] := DataModule1.tblTournament['ID'];
               inc(iEnterTour);
             end;
@@ -680,8 +673,8 @@ begin
           if DataModule1.tblTournament['Owner'] = sLogedinID then
           begin
             arrMyTournaments[iMytour] := DataModule1.tblTournament['ID'];
-            cbMyTournaments.Items.add
-              (DataModule1.tblTournament['TournamentName']);
+            cbMyTournaments.Items.add(DataModule1.tblTournament
+              ['TournamentName']);
 
           end;
           inc(iMytour);
@@ -717,18 +710,15 @@ begin
           dmBrugDatabase_u.DataModule1.tblPlayer.edit;
           dmBrugDatabase_u.DataModule1.tblPlayer['Rank'] := iRanking;
 
-          redRanking.lines.add
-            (IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rank'])
-              + #9 + sName + #9 + sSurname + #9 + IntToStr
-              (dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + IntToStr
-              (dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 + IntToStr
-              (dmBrugDatabase_u.DataModule1.tblPlayer['WinRate'])
-              + #9 + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']
-              ) + #9 + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer
-                ['TournamentAmount']) + #9 + IntToStr
-              (dmBrugDatabase_u.DataModule1.tblPlayer['Loses']
-                + dmBrugDatabase_u.DataModule1.tblPlayer['Wins'])
-              + #9 + sCountry);
+          redRanking.lines.add(IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer
+            ['Rank']) + #9 + sName + #9 + sSurname + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['WinRate']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Rating']) + #9 +
+            IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['TournamentAmount'])
+            + #9 + IntToStr(dmBrugDatabase_u.DataModule1.tblPlayer['Loses'] +
+            dmBrugDatabase_u.DataModule1.tblPlayer['Wins']) + #9 + sCountry);
           dmBrugDatabase_u.DataModule1.tblPlayer.Next;
         end;
         dmBrugDatabase_u.DataModule1.tblPlayer.edit;
@@ -999,17 +989,15 @@ begin
         dmBrugDatabase_u.DataModule1.tblUsers.First;
         redSearch.clear;
         redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add
-          ('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins' + #9 +
-            'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-            'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
+          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
         while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
         begin
           if (pos(UpperCase(edtSearch.text),
-              UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Name'])) > 0)
-            and (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False)
-            then
+            UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Name'])) > 0) and
+            (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
           begin
 
             dmBrugDatabase_u.DataModule1.tblPlayer.First;
@@ -1017,8 +1005,7 @@ begin
             while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
             begin
               if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
-                = dmBrugDatabase_u.DataModule1.tblUsers
-                ['ID Number'] then
+                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
               begin
                 iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
                 iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
@@ -1035,14 +1022,13 @@ begin
 
             end;
 
-            redSearch.lines.add
-              (dmBrugDatabase_u.DataModule1.tblUsers['Name']
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname']
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
-                + #9 + IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr
-                (iWinrate) + #9 + IntToStr(iRating) + #9 + IntToStr(iRank)
-                + #9 + IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed)
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['Country']);
+            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
+              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
+              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
+              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
+              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
             dmBrugDatabase_u.DataModule1.tblPlayer.Next;
           end;
           dmBrugDatabase_u.DataModule1.tblUsers.Next;
@@ -1055,17 +1041,16 @@ begin
         dmBrugDatabase_u.DataModule1.tblUsers.First;
         redSearch.clear;
         redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add
-          ('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins' + #9 +
-            'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-            'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
+          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
         while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
         begin
           if (pos(UpperCase(edtSearch.text),
-              UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Surname']))
-              > 0) and (dmBrugDatabase_u.DataModule1.tblUsers['Organiser']
-              = False) then
+            UpperCase(dmBrugDatabase_u.DataModule1.tblUsers['Surname'])) > 0)
+            and (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False)
+          then
           begin
 
             dmBrugDatabase_u.DataModule1.tblPlayer.First;
@@ -1073,8 +1058,7 @@ begin
             while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
             begin
               if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
-                = dmBrugDatabase_u.DataModule1.tblUsers
-                ['ID Number'] then
+                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
               begin
                 iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
                 iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
@@ -1091,14 +1075,13 @@ begin
 
             end;
 
-            redSearch.lines.add
-              (dmBrugDatabase_u.DataModule1.tblUsers['Name']
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname']
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
-                + #9 + IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr
-                (iWinrate) + #9 + IntToStr(iRating) + #9 + IntToStr(iRank)
-                + #9 + IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed)
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['Country']);
+            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
+              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
+              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
+              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
+              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
             dmBrugDatabase_u.DataModule1.tblPlayer.Next;
           end;
           dmBrugDatabase_u.DataModule1.tblUsers.Next;
@@ -1110,15 +1093,14 @@ begin
         dmBrugDatabase_u.DataModule1.tblUsers.First;
         redSearch.clear;
         redSearch.SelAttributes.style := [fsbold];
-        redSearch.lines.add
-          ('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins' + #9 +
-            'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
-            'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
+        redSearch.lines.add('''Name' + #9 + 'Surname' + #9 + 'ID' + #9 + 'Wins'
+          + #9 + 'Loses' + #9 + 'Winrate' + #9 + 'Rating' + #9 + 'Rank' + #9 +
+          'Tournament amount' + #9 + 'Games Played' + #9 + 'Country');
 
         while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
         begin
-          if (pos(edtSearch.text,
-              dmBrugDatabase_u.DataModule1.tblUsers['ID Number']) > 0) and
+          if (pos(edtSearch.text, dmBrugDatabase_u.DataModule1.tblUsers
+            ['ID Number']) > 0) and
             (dmBrugDatabase_u.DataModule1.tblUsers['Organiser'] = False) then
           begin
 
@@ -1127,8 +1109,7 @@ begin
             while not(dmBrugDatabase_u.DataModule1.tblPlayer.eof) do
             begin
               if dmBrugDatabase_u.DataModule1.tblPlayer['ID']
-                = dmBrugDatabase_u.DataModule1.tblUsers
-                ['ID Number'] then
+                = dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] then
               begin
                 iWins := dmBrugDatabase_u.DataModule1.tblPlayer['Wins'];
                 iLoses := dmBrugDatabase_u.DataModule1.tblPlayer['Loses'];
@@ -1145,14 +1126,13 @@ begin
 
             end;
 
-            redSearch.lines.add
-              (dmBrugDatabase_u.DataModule1.tblUsers['Name']
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname']
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
-                + #9 + IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr
-                (iWinrate) + #9 + IntToStr(iRating) + #9 + IntToStr(iRank)
-                + #9 + IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed)
-                + #9 + dmBrugDatabase_u.DataModule1.tblUsers['Country']);
+            redSearch.lines.add(dmBrugDatabase_u.DataModule1.tblUsers['Name'] +
+              #9 + dmBrugDatabase_u.DataModule1.tblUsers['Surname'] + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] + #9 +
+              IntToStr(iWins) + #9 + IntToStr(iLoses) + #9 + IntToStr(iWinrate)
+              + #9 + IntToStr(iRating) + #9 + IntToStr(iRank) + #9 +
+              IntToStr(iTourAmount) + #9 + IntToStr(iGamesPlayed) + #9 +
+              dmBrugDatabase_u.DataModule1.tblUsers['Country']);
             dmBrugDatabase_u.DataModule1.tblPlayer.Next;
           end;
           dmBrugDatabase_u.DataModule1.tblUsers.Next;
@@ -1171,27 +1151,27 @@ procedure TfrmBridgeDatabase.btnSideAClick(Sender: TObject);
 var
   tfile: textfile;
   sline, sname1, sname2, sTemp: string;
-  i, irat1, irat2, X, Y, k, iLynnr, j, l, OldRating1,OldRating2, NewRating1, NewRating2: Integer;
+  i, irat1, irat2, X, Y, k, iLynnr, j, l, OldRating1, OldRating2, NewRating1,
+    NewRating2: Integer;
   arrFile: array [0 .. 100] of string;
-  A1, A2, B1, B2 : real;
+  A1, A2, B1, B2: real;
 begin
 
   for i := 0 to ital do
   begin
     if copy(arrpair[iGames], 1, 13) = copy(arrRank[i], 1, 13) then
     begin
-      arrRank[i] := copy(arrRank[i], 1, 14) + IntToStr
-        (strtoint(copy(arrRank[i], 15, Length(arrRank[i]) - 14)) + 1);
+      arrRank[i] := copy(arrRank[i], 1, 14) +
+        IntToStr(strtoint(copy(arrRank[i], 15, Length(arrRank[i]) - 14)) + 1);
       break;
     end;
 
   end;
-   /////////Rating Calculator///Elo Rating sytem/////
-   DataModule1.tblPlayer.First;
+  /// //////Rating Calculator///Elo Rating sytem/////
+  DataModule1.tblPlayer.First;
   while not(DataModule1.tblPlayer.eof) do
   begin
-    if DataModule1.tblPlayer['ID'] = copy
-      (arrpair[iGames], 1, 13) then
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 1, 13) then
     begin
       OldRating1 := DataModule1.tblPlayer['Rating'];
       break;
@@ -1202,8 +1182,7 @@ begin
   DataModule1.tblPlayer.First;
   while not(DataModule1.tblPlayer.eof) do
   begin
-    if DataModule1.tblPlayer['ID'] = copy
-      (arrpair[iGames], 15, 13) then
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 15, 13) then
     begin
       OldRating2 := DataModule1.tblPlayer['Rating'];
       break;
@@ -1216,22 +1195,21 @@ begin
     DataModule1.tblUsers.Next;
   end;
 
-  A1 := power(10,(OldRating1/400));
-  A2 := power(10,(OldRating2/400));
+  A1 := power(10, (OldRating1 / 400));
+  A2 := power(10, (OldRating2 / 400));
 
-  B1 := A1/(A1+A2);
-  B2 := A2/(A1+A2);
+  B1 := A1 / (A1 + A2);
+  B2 := A2 / (A1 + A2);
 
-  NewRating1 := oldrating1 + (36*(1-B1));
-  NewRating2 := OldRating2 + (36*(0-B2));
+  NewRating1 := round(OldRating1 + (36 * (1 - B1)));
+  NewRating2 := round(OldRating2 + (36 * (0 - B2)));
 
-
-    DataModule1.tblPlayer.First;
+  DataModule1.tblPlayer.First;
   while not(DataModule1.tblPlayer.eof) do
   begin
-    if DataModule1.tblPlayer['ID'] = copy
-      (arrpair[iGames], 1, 13) then
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 1, 13) then
     begin
+      DataModule1.tblPlayer.edit;
       DataModule1.tblPlayer['Rating'] := NewRating1;
       DataModule1.tblPlayer['Wins'] := DataModule1.tblPlayer['Wins'] + 1;
       break;
@@ -1242,32 +1220,33 @@ begin
   DataModule1.tblPlayer.First;
   while not(DataModule1.tblPlayer.eof) do
   begin
-    if DataModule1.tblPlayer['ID'] = copy
-      (arrpair[iGames], 15, 13) then
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 15, 13) then
     begin
+      DataModule1.tblPlayer.edit;
       DataModule1.tblPlayer['Rating'] := NewRating2;
       DataModule1.tblPlayer['Loses'] := DataModule1.tblPlayer['Loses'] + 1;
       break;
-    end
+    end;
+    DataModule1.tblPlayer.Next;
   end;
 
-//////////////////////////////////////
+  /// ///////////////////////////////////
 
   AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
-    append(tfile);
+  append(tfile);
   arrpair[iGames] := arrpair[iGames] + '/1-0';
-   Writeln(tfile, copy(arrpair[iGames], 1, 13) + ',' + copy(arrpair[iGames], 15,13) + copy(arrpair[iGames], 28,length(arrpair[iGames]) - 27));
-  ShowMessage(arrpair[iGames]);
-   CloseFile(tfile);
+  Writeln(tfile, copy(arrpair[iGames], 1, 13) + ',' + copy(arrpair[iGames], 15,
+    13) + copy(arrpair[iGames], 28, Length(arrpair[iGames]) - 27));
+  CloseFile(tfile);
   inc(iGames);
   DataModule1.tblUsers.First;
   while not(DataModule1.tblUsers.eof) do
   begin
-    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy
-      (arrpair[iGames], 1, 13) then
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
+      = copy(arrpair[iGames], 1, 13) then
     begin
-      btnSideA.Caption := DataModule1.tblUsers['Name']
-        + ' ' + DataModule1.tblUsers['Surname'];
+      btnSideA.Caption := DataModule1.tblUsers['Name'] + ' ' +
+        DataModule1.tblUsers['Surname'];
       break;
     end;
     dmBrugDatabase_u.DataModule1.tblUsers.Next;
@@ -1276,11 +1255,11 @@ begin
   DataModule1.tblUsers.First;
   while not(DataModule1.tblUsers.eof) do
   begin
-    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy
-      (arrpair[iGames], 15, 13) then
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
+      = copy(arrpair[iGames], 15, 13) then
     begin
-      btnSideB.Caption := DataModule1.tblUsers['Name']
-        + ' ' + DataModule1.tblUsers['Surname'];
+      btnSideB.Caption := DataModule1.tblUsers['Name'] + ' ' +
+        DataModule1.tblUsers['Surname'];
       break;
     end
     else
@@ -1305,7 +1284,7 @@ begin
           begin
             irat1 := (DataModule1.tblPlayer['Rating'] + 30000) *
               ((strtoint(copy(arrRank[X], 15, Length(arrRank[X]) - 14))
-                  + 1) + 1);
+              + 1) + 1);
             break;
           end;
 
@@ -1318,7 +1297,7 @@ begin
           begin
             irat2 := (DataModule1.tblPlayer['Rating'] + 30000) *
               ((strtoint(copy(arrRank[Y], 15, Length(arrRank[Y]) - 14))
-                  + 1) + 1);
+              + 1) + 1);
             break;
           end;
 
@@ -1360,15 +1339,15 @@ begin
 
       Readln(tfile, sline);
     end;
-     Readln(tfile,sline);
+    Readln(tfile, sline);
     while not eof(tfile) do
     begin
       arrFile[iLynnr] := sline;
       Readln(tfile, sline);
       inc(iLynnr);
     end;
-      arrFile[iLynnr] := sline;
-       inc(iLynnr);
+    arrFile[iLynnr] := sline;
+    inc(iLynnr);
     CloseFile(tfile);
     /// ///
     arrFile[iLynnr] := 'Round' + IntToStr(iround);
@@ -1382,13 +1361,13 @@ begin
     redPairings.Paragraph.Tab[3] := 120;
     redPairings.SelAttributes.style := [fsbold];
     redPairings.lines.add('Table' + #9 + 'Side A' + #9 + 'Results' + #9 +
-        'Side B');
+      'Side B');
 
     ital2 := 0;
     while ital2 < trunc((ital - 1) / 2) do
     begin
-      arrpair[ital2] := copy(arrRank[ital2], 1, 13) + ',' + copy
-        (arrRank[ital2 + trunc(ital / 2)], 1, 13) + '';
+      arrpair[ital2] := copy(arrRank[ital2], 1, 13) + ',' +
+        copy(arrRank[ital2 + trunc(ital / 2)], 1, 13) + '';
 
       inc(ital2);
     end;
@@ -1403,8 +1382,8 @@ begin
       dmBrugDatabase_u.DataModule1.tblUsers.First;
       while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
       begin
-        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy
-          (arrpair[i], 1, 13) then
+        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[i],
+          1, 13) then
         begin
           sname1 := DataModule1.tblUsers['Name'] + ' ' + DataModule1.tblUsers
             ['Surname'];
@@ -1417,8 +1396,8 @@ begin
       dmBrugDatabase_u.DataModule1.tblUsers.First;
       while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
       begin
-        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy
-          (arrpair[i], 15, 13) then
+        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[i],
+          15, 13) then
         begin
           sname2 := DataModule1.tblUsers['Name'] + ' ' + DataModule1.tblUsers
             ['Surname'];
@@ -1430,12 +1409,303 @@ begin
         end;
         dmBrugDatabase_u.DataModule1.tblUsers.Next;
       end;
-       redPairings.lines.add(IntToStr(i + 1) + '.' + #9 + sname1 + #9 + '0-0' +
-       #9 + #9 + sname2);
+      redPairings.lines.add(IntToStr(i + 1) + '.' + #9 + sname1 + #9 + '0-0' +
+        #9 + #9 + sname2);
 
     end;
 
-    btnStartTournament.Enabled := True;
+    if strtoint(copy(label8.caption,17,length(label8.caption)-16)) >= iround then
+    btnStartTournament.Enabled := True
+    else
+    begin
+      btnStartTournament.Enabled := False;
+    end;
+    gbWinner.Visible := False;
+    AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
+    Rewrite(tfile);
+    for j := 0 to iLynnr - 1 do
+    begin
+      sline := arrFile[j];
+      Writeln(tfile, sline);
+    end;
+    CloseFile(tfile);
+  end;
+
+end;
+
+procedure TfrmBridgeDatabase.btnSideBClick(Sender: TObject);
+var
+  tfile: textfile;
+  sline, sname1, sname2, sTemp: string;
+  i, irat1, irat2, X, Y, k, iLynnr, j, l, OldRating1, OldRating2, NewRating1,
+    NewRating2: Integer;
+  arrFile: array [0 .. 100] of string;
+  A1, A2, B1, B2: real;
+begin
+
+  for i := 0 to ital do
+  begin
+    if copy(arrpair[iGames], 15, 13) = copy(arrRank[i], 1, 13) then
+    begin
+      arrRank[i] := copy(arrRank[i], 1, 14) +
+        IntToStr(strtoint(copy(arrRank[i], 15, Length(arrRank[i]) - 14)) + 1);
+      break;
+    end;
+
+  end;
+  /// //////Rating Calculator///Elo Rating sytem/////
+  DataModule1.tblPlayer.First;
+  while not(DataModule1.tblPlayer.eof) do
+  begin
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 1, 13) then
+    begin
+      OldRating1 := DataModule1.tblPlayer['Rating'];
+      break;
+    end;
+    DataModule1.tblPlayer.Next;
+  end;
+
+  DataModule1.tblPlayer.First;
+  while not(DataModule1.tblPlayer.eof) do
+  begin
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 15, 13) then
+    begin
+      OldRating2 := DataModule1.tblPlayer['Rating'];
+      break;
+    end
+    else
+    begin
+      OldRating2 := OldRating1;
+      break;
+    end;
+    DataModule1.tblUsers.Next;
+  end;
+
+  A1 := power(10, (OldRating1 / 400));
+  A2 := power(10, (OldRating2 / 400));
+
+  B1 := A1 / (A1 + A2);
+  B2 := A2 / (A1 + A2);
+
+  NewRating1 := round(OldRating1 + (36 * (0 - B1)));
+  NewRating2 := round(OldRating2 + (36 * (1 - B2)));
+
+  DataModule1.tblPlayer.First;
+  while not(DataModule1.tblPlayer.eof) do
+  begin
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 1, 13) then
+    begin
+      DataModule1.tblPlayer.edit;
+      DataModule1.tblPlayer['Rating'] := NewRating1;
+      DataModule1.tblPlayer['Wins'] := DataModule1.tblPlayer['Wins'] + 1;
+      break;
+    end;
+    DataModule1.tblPlayer.Next;
+  end;
+
+  DataModule1.tblPlayer.First;
+  while not(DataModule1.tblPlayer.eof) do
+  begin
+    if DataModule1.tblPlayer['ID'] = copy(arrpair[iGames], 15, 13) then
+    begin
+      DataModule1.tblPlayer.edit;
+      DataModule1.tblPlayer['Rating'] := NewRating2;
+      DataModule1.tblPlayer['Loses'] := DataModule1.tblPlayer['Loses'] + 1;
+      break;
+    end;
+    DataModule1.tblPlayer.Next;
+  end;
+
+  /// ///////////////////////////////////
+
+  AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
+  append(tfile);
+  arrpair[iGames] := arrpair[iGames] + '/0-1';
+  Writeln(tfile, copy(arrpair[iGames], 1, 13) + ',' + copy(arrpair[iGames], 15,
+    13) + copy(arrpair[iGames], 28, Length(arrpair[iGames]) - 27));
+  CloseFile(tfile);
+  inc(iGames);
+  DataModule1.tblUsers.First;
+  while not(DataModule1.tblUsers.eof) do
+  begin
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
+      = copy(arrpair[iGames], 1, 13) then
+    begin
+      btnSideA.Caption := DataModule1.tblUsers['Name'] + ' ' +
+        DataModule1.tblUsers['Surname'];
+      break;
+    end;
+    dmBrugDatabase_u.DataModule1.tblUsers.Next;
+  end;
+
+  DataModule1.tblUsers.First;
+  while not(DataModule1.tblUsers.eof) do
+  begin
+    if dmBrugDatabase_u.DataModule1.tblUsers['ID Number']
+      = copy(arrpair[iGames], 15, 13) then
+    begin
+      btnSideB.Caption := DataModule1.tblUsers['Name'] + ' ' +
+        DataModule1.tblUsers['Surname'];
+      break;
+    end
+    else
+    begin
+      btnSideB.Caption := 'No Player';
+      break;
+    end;
+    dmBrugDatabase_u.DataModule1.tblUsers.Next;
+  end;
+
+  if (iGames >= ital2) then
+  begin
+
+    for X := 0 to ital - 1 do
+      for Y := X to ital do
+      begin
+
+        DataModule1.tblPlayer.First;
+        while not DataModule1.tblPlayer.eof do
+        begin
+          if DataModule1.tblPlayer['ID'] = copy(arrRank[X], 1, 13) then
+          begin
+            irat1 := (DataModule1.tblPlayer['Rating'] + 30000) *
+              ((strtoint(copy(arrRank[X], 15, Length(arrRank[X]) - 14))
+              + 1) + 1);
+            break;
+          end;
+
+          DataModule1.tblPlayer.Next;
+        end;
+        DataModule1.tblPlayer.First;
+        while not DataModule1.tblPlayer.eof do
+        begin
+          if DataModule1.tblPlayer['ID'] = copy(arrRank[Y], 1, 13) then
+          begin
+            irat2 := (DataModule1.tblPlayer['Rating'] + 30000) *
+              ((strtoint(copy(arrRank[Y], 15, Length(arrRank[Y]) - 14))
+              + 1) + 1);
+            break;
+          end;
+
+          DataModule1.tblPlayer.Next;
+        end;
+
+        if irat2 > irat1 then
+        begin
+          sTemp := arrRank[X];
+          arrRank[X] := arrRank[Y];
+          arrRank[Y] := sTemp;
+        end;
+
+      end;
+    /// //////
+    iLynnr := 1;
+
+    arrFile[0] := 'PlayerRanking';
+    for k := 0 to ital - 1 do
+    begin
+      arrFile[iLynnr] := arrRank[k];
+      inc(iLynnr);
+    end;
+    AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
+    reset(tfile);
+    arrFile[iLynnr] := 'Pairings';
+    inc(iLynnr);
+    // for i := 0 to ital2 do
+    // begin
+    //
+    Readln(tfile, sline);
+    // inc(iLynnr);
+    // end;
+    //
+    //
+
+    while sline <> 'Pairings' do
+    begin
+
+      Readln(tfile, sline);
+    end;
+    Readln(tfile, sline);
+    while not eof(tfile) do
+    begin
+      arrFile[iLynnr] := sline;
+      Readln(tfile, sline);
+      inc(iLynnr);
+    end;
+    arrFile[iLynnr] := sline;
+    inc(iLynnr);
+    CloseFile(tfile);
+    /// ///
+    arrFile[iLynnr] := 'Round' + IntToStr(iround);
+
+    inc(iLynnr);
+    redPairings.clear;
+    redPairings.Paragraph.TabCount := 4;
+    redPairings.Paragraph.Tab[0] := 30;
+    redPairings.Paragraph.Tab[1] := 120;
+    redPairings.Paragraph.Tab[2] := 30;
+    redPairings.Paragraph.Tab[3] := 120;
+    redPairings.SelAttributes.style := [fsbold];
+    redPairings.lines.add('Table' + #9 + 'Side A' + #9 + 'Results' + #9 +
+      'Side B');
+
+    ital2 := 0;
+    while ital2 < trunc((ital - 1) / 2) do
+    begin
+      arrpair[ital2] := copy(arrRank[ital2], 1, 13) + ',' +
+        copy(arrRank[ital2 + trunc(ital / 2)], 1, 13) + '';
+
+      inc(ital2);
+    end;
+    if trunc((ital - 1) / 2) <> ital / 2 then
+    begin
+      arrpair[ital2] := copy(arrRank[ital - 1], 1, 13) + ',' + '';
+      inc(ital2);
+    end;
+
+    for i := 0 to ital2 - 1 do
+    begin
+      dmBrugDatabase_u.DataModule1.tblUsers.First;
+      while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+      begin
+        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[i],
+          1, 13) then
+        begin
+          sname1 := DataModule1.tblUsers['Name'] + ' ' + DataModule1.tblUsers
+            ['Surname'];
+          break;
+
+        end;
+        dmBrugDatabase_u.DataModule1.tblUsers.Next;
+      end;
+
+      dmBrugDatabase_u.DataModule1.tblUsers.First;
+      while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
+      begin
+        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[i],
+          15, 13) then
+        begin
+          sname2 := DataModule1.tblUsers['Name'] + ' ' + DataModule1.tblUsers
+            ['Surname'];
+          break;
+        end
+        else
+        begin
+          sname2 := ''
+        end;
+        dmBrugDatabase_u.DataModule1.tblUsers.Next;
+      end;
+      redPairings.lines.add(IntToStr(i + 1) + '.' + #9 + sname1 + #9 + '0-0' +
+        #9 + #9 + sname2);
+
+    end;
+
+    if strtoint(copy(label8.caption,17,length(label8.caption)-16)) >= iround then
+    btnStartTournament.Enabled := True
+    else
+    begin
+      btnStartTournament.Enabled := False;
+    end;
     gbWinner.Visible := False;
     AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
     Rewrite(tfile);
@@ -1504,7 +1774,7 @@ begin
     redPairings.lines.add('Round 1');
     redPairings.SelAttributes.style := [fsbold];
     redPairings.lines.add('Table' + #9 + 'Side A' + #9 + 'Results' + #9 +
-        'Side B');
+      'Side B');
     AssignFile(tfile, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
     reset(tfile);
     ital := 0;
@@ -1520,8 +1790,8 @@ begin
     ital2 := 0;
     while ital2 < trunc((ital - 1) / 2) do
     begin
-      arrpair[ital2] := copy(arrRank[ital2], 1, 13) + ',' + copy
-        (arrRank[ital2 + trunc(ital / 2)], 1, 13) + '';
+      arrpair[ital2] := copy(arrRank[ital2], 1, 13) + ',' +
+        copy(arrRank[ital2 + trunc(ital / 2)], 1, 13) + '';
 
       inc(ital2);
     end;
@@ -1541,8 +1811,8 @@ begin
       dmBrugDatabase_u.DataModule1.tblUsers.First;
       while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
       begin
-        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy
-          (arrpair[i], 1, 13) then
+        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[i],
+          1, 13) then
         begin
           sname1 := DataModule1.tblUsers['Name'] + ' ' + DataModule1.tblUsers
             ['Surname'];
@@ -1554,8 +1824,8 @@ begin
       dmBrugDatabase_u.DataModule1.tblUsers.First;
       while not(dmBrugDatabase_u.DataModule1.tblUsers.eof) do
       begin
-        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy
-          (arrpair[i], 15, 13) then
+        if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[i],
+          15, 13) then
         begin
           sname2 := DataModule1.tblUsers['Name'] + ' ' + DataModule1.tblUsers
             ['Surname'];
@@ -1567,10 +1837,8 @@ begin
         end;
         dmBrugDatabase_u.DataModule1.tblUsers.Next;
       end;
-      redPairings.lines.add
-        (IntToStr(i + 1) + '.' + #9 + sname1 + #9 + '0-0' + #9 + #9 + sname2);
-
-     
+      redPairings.lines.add(IntToStr(i + 1) + '.' + #9 + sname1 + #9 + '0-0' +
+        #9 + #9 + sname2);
 
     end;
     CloseFile(tfile);
@@ -1579,15 +1847,15 @@ begin
   else
   begin
     gbWinner.Visible := True;
-    btnStartTournament.enabled := False;
+    btnStartTournament.Enabled := False;
     DataModule1.tblUsers.First;
     while not(DataModule1.tblUsers.eof) do
     begin
       if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[0],
         1, 13) then
       begin
-        btnSideA.Caption := DataModule1.tblUsers['Name']
-          + ' ' + DataModule1.tblUsers['Surname'];
+        btnSideA.Caption := DataModule1.tblUsers['Name'] + ' ' +
+          DataModule1.tblUsers['Surname'];
         break;
       end;
       dmBrugDatabase_u.DataModule1.tblUsers.Next;
@@ -1599,8 +1867,8 @@ begin
       if dmBrugDatabase_u.DataModule1.tblUsers['ID Number'] = copy(arrpair[0],
         15, 13) then
       begin
-        btnSideB.Caption := DataModule1.tblUsers['Name']
-          + ' ' + DataModule1.tblUsers['Surname'];
+        btnSideB.Caption := DataModule1.tblUsers['Name'] + ' ' +
+          DataModule1.tblUsers['Surname'];
         break;
       end;
       dmBrugDatabase_u.DataModule1.tblUsers.Next;
@@ -1714,8 +1982,8 @@ begin
   redPairings.Paragraph.Tab[3] := 120;
   redPairings.lines.add('Round 1');
   redPairings.SelAttributes.style := [fsbold];
-  redPairings.lines.add
-    ('Table' + #9 + 'Side A' + #9 + 'Results' + #9 + 'Side B');
+  redPairings.lines.add('Table' + #9 + 'Side A' + #9 + 'Results' + #9 +
+    'Side B');
   pnlMyTournament.Visible := True;
   DataModule1.tblTournament.First;
 
@@ -1727,17 +1995,25 @@ begin
       lblTourName.Caption := 'Tournament Name:  ' + DataModule1.tblTournament
         ['TournamentName'];
 
-      lblPlayAmount.Caption := 'Amount of Players:  ' + IntToStr
-        (DataModule1.tblTournament['PlayerAmount']);
+      lblPlayAmount.Caption := 'Amount of Players:  ' +
+        IntToStr(DataModule1.tblTournament['PlayerAmount']);
       lblPlayDate.Caption := 'Tournament Date:  ' + DataModule1.tblTournament
         ['TourDate'];
-      Label8.Caption := 'Amount of Games:' + IntToStr
-        (DataModule1.tblTournament['GameAmount']);
+      Label8.Caption := 'Amount of Games:' +
+        IntToStr(DataModule1.tblTournament['GameAmount']);
+      break;
     end;
 
     DataModule1.tblTournament.Next;
 
   end;
+
+  if (DataModule1.tblTournament['GameAmount'] > iround) and
+    (DataModule1.tblTournament['TourDate'] = IntToStr(dayof(date)) + '/' +
+    IntToStr(monthof(date)) + '/' + IntToStr(YearOf(date))) then
+    btnStartTournament.Enabled := True
+  else
+    btnStartTournament.Enabled := False;
 
   AssignFile(tler, arrMyTournaments[cbMyTournaments.ItemIndex] + '.txt');
   reset(tler);
@@ -1753,10 +2029,9 @@ begin
     begin
       if DataModule1.tblUsers['ID Number'] = copy(slyn, 1, 13) then
       begin
-        redMyTournament.lines.add
-          (IntToStr(iRank) + #9 + DataModule1.tblUsers['Name']
-            + ' ' + DataModule1.tblUsers['surname'] + #9 + copy(slyn,
-            pos(',', slyn) + 1, Length(slyn) - pos(',', slyn)));
+        redMyTournament.lines.add(IntToStr(iRank) + #9 + DataModule1.tblUsers
+          ['Name'] + ' ' + DataModule1.tblUsers['surname'] + #9 + copy(slyn,
+          pos(',', slyn) + 1, Length(slyn) - pos(',', slyn)));
         break;
       end;
 
@@ -1790,8 +2065,8 @@ begin
   redNotices.Paragraph.Tab[3] := 700;
 
   redNotices.SelAttributes.style := [fsbold];
-  redNotices.lines.add
-    ('Sender:' + #9 + 'Notice:' + #9 + 'Time:' + #9 + 'Type:');
+  redNotices.lines.add('Sender:' + #9 + 'Notice:' + #9 + 'Time:' + #9 +
+    'Type:');
 
   tsLogin.Caption := 'Login';
   tsRegister.Caption := 'Register New User';
@@ -2300,8 +2575,8 @@ begin
   pt := redOngoing.ScreenToClient(pt);
 
   sCurrentTour := arrTournaments[round((pt.Y + 5) / 13) - 2];
-  if not(Length(sCurrentTour) < 6) and not(round((pt.Y + 5) / 13) - 2 < 0)
-    and not((round((pt.Y + 5) / 13) - 2) > iTourAmount) then
+  if not(Length(sCurrentTour) < 6) and not(round((pt.Y + 5) / 13) - 2 < 0) and
+    not((round((pt.Y + 5) / 13) - 2) > iTourAmount) then
   begin
     frmOngoing.show;
   end;
@@ -2367,8 +2642,8 @@ begin
     DataModule1.tblTournament.Next;
   end;
 
-  if not(round((pt.Y - 10) / 13) - 1 < 0) and not
-    ((round((pt.Y - 10) / 13) - 1) > iEnterTour - 1) then
+  if not(round((pt.Y - 10) / 13) - 1 < 0) and
+    not((round((pt.Y - 10) / 13) - 1) > iEnterTour - 1) then
   begin
     if FileExists(sEnterTour + '.txt') then
     begin
